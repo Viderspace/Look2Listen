@@ -13,7 +13,6 @@ import numpy as np
 import cv2
 import torch
 import torch.nn.functional as F
-from facenet_pytorch import InceptionResnetV1
 import mediapipe as mp
 
 from avspeech.utils.constants import FACE_IMG_SZ
@@ -57,6 +56,7 @@ class FaceEmbedder:
         )
 
     def _init_encoder(self):
+        from facenet_pytorch import InceptionResnetV1
         """Initialize face encoder on MPS."""
         if not torch.backends.mps.is_available():
             raise RuntimeError("MPS not available - this implementation requires Apple Silicon")
