@@ -159,17 +159,17 @@ def get_preconfigured_datasets() -> List[DatasetDownloadDescriptor]:
     # Validation datasets
     s1_noise_validation_descriptor = DatasetDownloadDescriptor(
             sample_type=SampleT.S1_NOISE,
-            gcs_files=['gs://av_speech_validation/s1_noise.tar.gz'],
+            gcs_files=['gs://av_speech_validation/1s_noise.tar.gz'],
             is_validation=True
     )
     s2_clean_validation_descriptor = DatasetDownloadDescriptor(
             sample_type=SampleT.S2_CLEAN,
-            gcs_files=['gs://av_speech_validation/s2_clean.tar.gz'],
+            gcs_files=['gs://av_speech_validation/2s_clean.tar.gz'],
             is_validation=True
     )
     s2_noise_validation_descriptor = DatasetDownloadDescriptor(
             sample_type=SampleT.S2_NOISE,
-            gcs_files=['gs://av_speech_validation/s2_noise.tar.gz'],
+            gcs_files=['gs://av_speech_validation/2s_noise.tar.gz'],
             is_validation=True
     )
 
