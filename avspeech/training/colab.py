@@ -1,5 +1,6 @@
 import os
 import tarfile
+import shutil
 import subprocess
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
@@ -59,24 +60,70 @@ class PreStagingManager:
         print(f"============== PreStagingManager - {len(self.train_sets) + len(self.validation_sets)} datasets prepared ==============")
         return self.train_sets, self.validation_sets
 
+    #
+    # def _download_and_extract(self, descriptor: DatasetDownloadDescriptor) -> None:
+    #     """
+    #     1. Download the dataset tar.gs files from GCS (Google cloud storage) bucket, and extract them to the local directory.
+    #     2. Extracts the tar.gz files into the local directory.
+    #     3. Deletes the tar.gz files after extraction.
+    #
+    #     :param descriptor: DatasetDownloadDescriptor containing GCS URIs and local path.
+    #     """
+    #     local_dir = descriptor.get_local_dir(self.local_base_dir)
+    #     local_dir.mkdir(parents=True, exist_ok=True)
+    #     for gcs_uri in descriptor.gcs_files:
+    #         tar_path = local_dir / Path(gcs_uri).name
+    #         print(f"\nDownloading {gcs_uri} → {tar_path}")
+    #         subprocess.run(["gsutil", "cp", gcs_uri, str(tar_path)], check=True)
+    #         print(f"Extracting {tar_path}…")
+    #         with tarfile.open(tar_path, 'r:gz') as tf:
+    #             tf.extractall(local_dir)
+    #         tar_path.unlink(missing_ok=True)
 
     def _download_and_extract(self, descriptor: DatasetDownloadDescriptor) -> None:
         """
-        1. Download the dataset tar.gs files from GCS (Google cloud storage) bucket, and extract them to the local directory.
-        2. Extracts the tar.gz files into the local directory.
-        3. Deletes the tar.gz files after extraction.
-
-        :param descriptor: DatasetDownloadDescriptor containing GCS URIs and local path.
+        Fast path:
+          - Bulk copy all tars in one command (gcloud storage cp).
+          - Fallback: gsutil -m with sliced downloads and no hash checks (no crcmod).
+          - Extract with system `tar` (optionally pigz), then delete archives.
         """
         local_dir = descriptor.get_local_dir(self.local_base_dir)
         local_dir.mkdir(parents=True, exist_ok=True)
-        for gcs_uri in descriptor.gcs_files:
-            tar_path = local_dir / Path(gcs_uri).name
-            print(f"\nDownloading {gcs_uri} → {tar_path}")
-            subprocess.run(["gsutil", "cp", gcs_uri, str(tar_path)], check=True)
-            print(f"Extracting {tar_path}…")
-            with tarfile.open(tar_path, 'r:gz') as tf:
-                tf.extractall(local_dir)
+
+        uris = descriptor.gcs_files
+        # --- 1) Download (prefer gcloud; fallback to tuned gsutil) ---
+        if shutil.which("gcloud"):
+            # Modern, parallel by default; this matched your 121 MB/s test
+            cmd = ["gcloud", "storage", "cp", *uris, f"{str(local_dir)}/"]
+            print("\n[Download] gcloud storage cp …")
+            subprocess.run(cmd, check=True)
+        else:
+            # Fallback: high‑throughput gsutil without crcmod
+            # Note: -o flags must be on the same line as gsutil
+            cmd = [
+                    "gsutil", "-m",
+                    "-o", "GSUtil:parallel_thread_count=32",
+                    "-o", "GSUtil:sliced_object_download_max_components=32",
+                    "-o", "GSUtil:check_hashes=never",
+                    "cp", *uris, f"{str(local_dir)}/"
+            ]
+            print("\n[Download] gsutil tuned (parallel + sliced, no hashes) …")
+            subprocess.run(cmd, check=True)
+
+        # --- 2) Extract (system tar is faster than Python tarfile) ---
+        # If pigz is present, tar will use it for parallel gunzip.
+        use_pigz = shutil.which("pigz") is not None
+        tar_decomp_flag = ["-I", "pigz"] if use_pigz else ["-z"]  # -z == gzip
+
+        for tar_path in sorted(local_dir.glob("*.tar.gz")):
+            print(f"[Extract] {tar_path.name} → {local_dir}")
+            # tar -x (extract), -f file, -C target dir
+            # If pigz is installed, let tar call pigz to parallelize decompression.
+            if use_pigz:
+                cmd = ["tar", *tar_decomp_flag, "-xvf", str(tar_path), "-C", str(local_dir)]
+            else:
+                cmd = ["tar", "-xvf", str(tar_path), "-C", str(local_dir)]
+            subprocess.run(cmd, check=True)
             tar_path.unlink(missing_ok=True)
 
 

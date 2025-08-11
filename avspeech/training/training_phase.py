@@ -28,13 +28,14 @@ class TrainingPhase:
 
 
     @classmethod
-    def warmstart(cls) -> 'TrainingPhase':
+    def warmstart(cls, checkpoint_path: Optional[str] = None) -> 'TrainingPhase':
         return cls(
                 name= PhaseName.WARM_START,
                 probabilities={SampleT.S1_NOISE: 0.05, SampleT.S2_CLEAN: 0.475, SampleT.S2_NOISE: 0.475},
                 num_epochs=3,
                 learning_rate=1e-4,
-                min_lr=7e-5
+                min_lr=7e-5,
+                resume_checkpoint=checkpoint_path,
         )
 
     @classmethod
