@@ -151,7 +151,7 @@ def get_preconfigured_datasets() -> List[DatasetDownloadDescriptor]:
             sample_type=SampleT.S2_NOISE,
             gcs_files=[
                     'gs://av_speech_2s_clean_14k/2s_noise.tar.gz',
-                    'gs://av_speech_2s_clean_14k/2s_noise_if_ju.tar.gz',
+                    'gs://av_speech_2s_clean_14k/2s_noise_ao_aq.tar.gz',
             ],
             is_validation=False
     )
