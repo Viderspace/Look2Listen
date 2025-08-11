@@ -13,7 +13,7 @@ import numpy as np
 import cv2
 import torch
 import torch.nn.functional as F
-import mediapipe as mp
+
 
 from avspeech.utils.constants import FACE_IMG_SZ
 from avspeech.utils.face_detection_toolbox import nms_faces
@@ -49,6 +49,7 @@ class FaceEmbedder:
 
     def _init_detector(self):
         """Initialize MediaPipe face detection."""
+        import mediapipe as mp
         mp_face_detection = mp.solutions.face_detection
         self.detector = mp_face_detection.FaceDetection(
                 model_selection=1,  # 0 for short-range (2m), 1 for full-range (5m)
