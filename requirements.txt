@@ -1,0 +1,15 @@
+gradio~=5.41.1
+yt-dlp==2024.8.6
+moviepy==1.0.3
+pystoi~=0.4.1
+pesq~=0.0.4
+opencv-python~=4.12.0.88
+numpy~=1.26.4
+torch~=2.7.1
+tqdm~=4.67.1
+soundfile~=0.13.1
+librosa~=0.11.0
+mediapipe~=0.10.11
+matplotlib~=3.10.3
+pillow~=10.4.0
+setuptools~=78.1.1

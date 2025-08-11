@@ -1,0 +1,88 @@
+# --- OS junk ---
+.DS_Store
+Thumbs.db
+
+# --- Python bytecode & extensions ---
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.pyo
+
+# --- Virtual envs & local config ---
+.venv/
+venv/
+env/
+.conda/
+*.env
+.env*
+. python-version
+
+# --- Packaging / build artifacts ---
+build/
+dist/
+.eggs/
+*.egg-info/
+pip-wheel-metadata/
+
+# --- Logs & reports ---
+logs/
+*.log
+.coverage
+.coverage.*
+htmlcov/
+pytestdebug.log
+
+# --- Type-checker caches ---
+.mypy_cache/
+.pyre/
+.pytype/
+.pyright/
+
+# --- Notebooks ---
+.ipynb_checkpoints/
+
+# --- IDE/Editor ---
+.vscode/
+.idea/
+*.code-workspace
+
+# --- Data & big artifacts (downloaded/generated) ---
+data/
+datasets/
+downloads/
+app/downloads/
+temp/
+app/temp/
+cache/
+*.cache
+
+# Common media we don't want in the repo
+**/*.mp4
+**/*.avi
+**/*.mov
+**/*.wav
+**/*.flac
+**/*.m4a
+**/*.png
+**/*.jpg
+**/*.jpeg
+
+# Archives
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.gz
+
+# --- Model weights / training runs ---
+**/*.pt
+**/*.pth
+checkpoints/
+runs/
+wandb/
+tensorboard/
+lightning_logs/
+
+# --- Colab / misc ---
+.gdrive/

@@ -1,0 +1,11 @@
+# AV-Speech Enhancement Configuration
+
+# Data paths (automatically configured)
+data:
+  musan_dir: data/musan
+  metadata_path: data/avspeech_metadata.jsonl
+
+# These can be overridden with CLI arguments
+defaults:
+  sample_rate: 16000
+  augmentation: music
