@@ -3,8 +3,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from model.audio_model import AudioDilatedCNN
-from model.visual_model import VisualDilatedCNN, upsample_visual_features
+from avspeech.model.audio_model import AudioDilatedCNN
+from avspeech.model.visual_model import VisualDilatedCNN, upsample_visual_features
 
 
 class AudioVisualModel(nn.Module):

@@ -64,7 +64,6 @@ class VisualDilatedCNN(nn.Module):
         return x
 
 
-from timer_decorator import timer
 
 
 def upsample_visual_features(visual_features, target_length=298):
