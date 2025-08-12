@@ -1,4 +1,5 @@
 # dataloader.py
+import os
 from torch.utils.data import DataLoader, Dataset
 from typing import Dict, Optional, Iterator, List, Any
 from pathlib import Path
@@ -62,11 +63,13 @@ class MixedDataLoader:
     def _get_dataset_sizes(self, paths: Dict[SampleT, Path]) -> Dict[SampleT, int]:
         sizes = {}
         for st, path in paths.items():
-            set_files = [d for d in path.iterdir() if d.is_dir()]
-            sample_dirs = [d for d in set_files if (d / 'mixture.pt').exists() and
-                           (d / 'clean.pt').exists() and
-                           (d / 'face.pt').exists()]
-            sizes[st] = len(sample_dirs)
+            count = 0
+            master_folders = [d for d in path.iterdir() if d.is_dir()]
+            for folder in master_folders:
+                if not folder.is_dir():
+                    raise ValueError(f"Expected directory but found file: {folder}")
+                count += count_subfolders(folder)
+            sizes[st] = count
         return sizes
 
     def _collate_fn(self, batch: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -114,3 +117,23 @@ class MixedDataLoader:
                 num_workers=self.num_workers,
                 collate_fn=self._collate_fn
         )
+
+
+def count_subfolders(directory_path):
+    """
+    Counts the number of subfolders (directories) within a given directory.
+    This function counts immediate subfolders, not recursively.
+    """
+    subfolder_count = 0
+    try:
+        for entry in os.listdir(directory_path):
+            full_path = os.path.join(directory_path, entry)
+            if os.path.isdir(full_path):
+                subfolder_count += 1
+        return subfolder_count
+    except FileNotFoundError:
+        print(f"Error: Directory not found at '{directory_path}'")
+        return -1
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return -1
