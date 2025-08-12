@@ -55,7 +55,8 @@ class AVSpeechDatasetBase(Dataset):
                 'mixture'  : mixture_audio,  # [257, 298, 2]
                 'clean'    : clean_audio,  # [257, 298, 2]
                 'face'     : face_embs,  # [75, 512]
-                'sample_id': sample_dir.name
+                'sample_id': sample_dir.name,
+                "mix_type" : self.get_type(),  # Use SampleT enum for type
         }
 
 
