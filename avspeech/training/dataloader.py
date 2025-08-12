@@ -62,7 +62,10 @@ class MixedDataLoader:
     def _get_dataset_sizes(self, paths: Dict[SampleT, Path]) -> Dict[SampleT, int]:
         sizes = {}
         for st, path in paths.items():
-            sample_dirs = [d for d in path.iterdir() if d.is_dir()]
+            set_files = [d for d in path.iterdir() if d.is_dir()]
+            sample_dirs = [d for d in set_files if (d / 'mixture.pt').exists() and
+                           (d / 'clean.pt').exists() and
+                           (d / 'face.pt').exists()]
             sizes[st] = len(sample_dirs)
         return sizes
 
