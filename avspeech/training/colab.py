@@ -82,24 +82,23 @@ class PreStagingManager:
 
     def _download_and_extract(self, descriptor: DatasetDownloadDescriptor) -> None:
         """
-        Fast path:
+        Fast path with flattening:
           - Bulk copy all tars in one command (gcloud storage cp).
-          - Fallback: gsutil -m with sliced downloads and no hash checks (no crcmod).
-          - Extract with system `tar` (optionally pigz), then delete archives.
+          - Extract each tar to a temporary directory
+          - Move all sample directories to the final location (flattened)
+          - Clean up temporary directories and archives
         """
         local_dir = descriptor.get_local_dir(self.local_base_dir)
         local_dir.mkdir(parents=True, exist_ok=True)
 
         uris = descriptor.gcs_files
-        # --- 1) Download (prefer gcloud; fallback to tuned gsutil) ---
+
+        # --- 1) Download ---
         if shutil.which("gcloud"):
-            # Modern, parallel by default; this matched your 121 MB/s test
             cmd = ["gcloud", "storage", "cp", *uris, f"{str(local_dir)}/"]
             print("\n[Download] gcloud storage cp …")
             subprocess.run(cmd, check=True)
         else:
-            # Fallback: high‑throughput gsutil without crcmod
-            # Note: -o flags must be on the same line as gsutil
             cmd = [
                     "gsutil", "-m",
                     "-o", "GSUtil:parallel_thread_count=32",
@@ -110,22 +109,55 @@ class PreStagingManager:
             print("\n[Download] gsutil tuned (parallel + sliced, no hashes) …")
             subprocess.run(cmd, check=True)
 
-        # --- 2) Extract (system tar is faster than Python tarfile) ---
-        # If pigz is present, tar will use it for parallel gunzip.
+        # --- 2) Extract and flatten ---
         use_pigz = shutil.which("pigz") is not None
-        tar_decomp_flag = ["-I", "pigz"] if use_pigz else ["-z"]  # -z == gzip
 
         for tar_path in sorted(local_dir.glob("*.tar.gz")):
-            print(f"[Extract] {tar_path.name} → {local_dir}")
-            # tar -x (extract), -f file, -C target dir
-            # If pigz is installed, let tar call pigz to parallelize decompression.
+            print(f"[Extract & Flatten] {tar_path.name} → {local_dir}")
+
+            # Create temporary extraction directory
+            temp_extract_dir = local_dir / f"temp_{tar_path.stem}"
+            temp_extract_dir.mkdir(exist_ok=True)
+
+            # Extract to temporary directory
             if use_pigz:
-                cmd = ["tar", *tar_decomp_flag, "-xvf", str(tar_path), "-C", str(local_dir)]
+                cmd = ["tar", "-I", "pigz", "-xf", str(tar_path), "-C", str(temp_extract_dir)]
             else:
-                cmd = ["tar", "-xvf", str(tar_path), "-C", str(local_dir)]
+                cmd = ["tar", "-xf", str(tar_path), "-C", str(temp_extract_dir)]
             subprocess.run(cmd, check=True)
+
+            # Flatten: move all sample directories to the main directory
+            self._flatten_extracted_content(temp_extract_dir, local_dir)
+
+            # Clean up
+            shutil.rmtree(temp_extract_dir)
             tar_path.unlink(missing_ok=True)
 
+
+    def _flatten_extracted_content(self, temp_dir: Path, target_dir: Path) -> None:
+        """
+        Simple flattening assuming structure: extracted_folder/sample_directories/
+        """
+        sample_count = 0
+
+        # Look for directories that contain sample directories
+        for extracted_folder in temp_dir.iterdir():
+            if extracted_folder.is_dir():
+                # Move all subdirectories (samples) to target
+                for sample_dir in extracted_folder.iterdir():
+                    if sample_dir.is_dir():
+                        target_path = target_dir / sample_dir.name
+                        if target_path.exists():
+                            # Handle name conflicts (should not happen)
+                            counter = 1
+                            while (target_dir / f"{sample_dir.name}_{counter}").exists():
+                                counter += 1
+                            target_path = target_dir / f"{sample_dir.name}_{counter}"
+
+                        shutil.move(str(sample_dir), str(target_path))
+                        sample_count += 1
+
+        print(f"  → Moved {sample_count} samples to {target_dir}")
 
     # TODO - Private asset - Remove this when not needed
 def get_preconfigured_datasets() -> List[DatasetDownloadDescriptor]:
