@@ -26,6 +26,7 @@ class AVSpeechDatasetBase(Dataset):
 
         # Get all sample directories
         self.sample_dirs: List[Path] = [p for p in self.root.iterdir() if p.is_dir()]
+        print(f"Detected {len(self.sample_dirs)} samples in {self.root}")
         self.sample_dirs.sort() # For reproducibility
 
 

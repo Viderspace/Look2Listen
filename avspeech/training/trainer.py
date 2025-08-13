@@ -51,9 +51,15 @@ class Trainer:
         )
 
     def _setup_scheduler(self) -> LRScheduler:
+        #TODO - DEBUG VERSION REMOVE
         """Create cosine annealing LR scheduler"""
         steps_per_epoch = len(self.data_loader.sampler)
+        print(f"{(steps_per_epoch == len(self.data_loader.get_train_loader())) =} equal?")
         total_steps = steps_per_epoch * self.phase.num_epochs
+
+        # lightweight one-time print
+        print(f"[sched] steps/epoch={steps_per_epoch}, total_steps={total_steps}, "
+              f"lr_start={self.phase.learning_rate:.2e}, lr_min={self.phase.min_lr:.2e}")
 
         return CosineAnnealingLR(
                 self.optimizer,
@@ -96,10 +102,29 @@ class Trainer:
         torch.save(checkpoint, latest_path)
 
     def freeze_early_layers_on_warm_start(self, batch_idx: int, unfreeze_batch: int) -> None:
+        """Freeze first 2 audio conv layers at batch 0; unfreeze all at `unfreeze_batch`."""
+        if batch_idx not in (0, unfreeze_batch):
+            return
+        def total_and_trainable_params_count():
+            """Count trainable parameters in the audio CNN."""
+            total = sum(p.numel() for p in self.model.audio_cnn.parameters())
+            trainable = sum(p.numel() for p in self.model.audio_cnn.parameters() if p.requires_grad)
+            return total, trainable
+
+        # BEFORE
+        total_params, trainable_before = total_and_trainable_params_count()
+        action = "freeze" if batch_idx == 0 else "unfreeze"
+        print(f"[{action}] before: total_params={total_params}, trainable={trainable_before}, step={batch_idx}")
         if batch_idx == 0:
-            self.model.audio_cnn.freeze_early_layers(2)  # Freeze only the first 2 layers of the audio CNN
-        elif batch_idx == unfreeze_batch:  # Unfreeze all layers after the specified batch
+            # Freeze only the first 2 layers
+            self.model.audio_cnn.freeze_early_layers(2)
+        else:  # batch_idx == unfreeze_batch
             self.model.audio_cnn.unfreeze_all_layers()
+
+        # AFTER
+        total_params, trainable_after = total_and_trainable_params_count()
+        print(f"[{action}] after: total_params={total_params}, trainable={trainable_after}")
+
 
     def train_epoch(self, epoch: int) -> Dict[str, float]:
         """Run one training epoch and return average metrics"""
@@ -109,7 +134,34 @@ class Trainer:
         epoch_loss = 0
         num_batches = 0
 
+        # ==========TODO - DEBUG REMOVE ===============================
+        mix_counts_epoch = {"1s_noise": 0, "2s_clean": 0, "2s_noise": 0}
+        _batch_mix_stats = []  # list of (n1, n2c, n2n) per batch
+        # =========================================
+
+
         for batch in tqdm(train_loader, desc=f'Epoch {epoch}'):
+            #==========TODO - DEBUG REMOVE ===============================
+            # mix accounting per batch (cheap)
+            types = batch["mix_type"]  # list[str]
+            n1 = sum(1 for t in types if t == SampleT.S1_NOISE)
+            n2c = sum(1 for t in types if t == SampleT.S2_CLEAN)
+            n2n = sum(1 for t in types if t == SampleT.S2_NOISE)
+
+            mix_counts_epoch["1s_noise"] += n1
+            mix_counts_epoch["2s_clean"] += n2c
+            mix_counts_epoch["2s_noise"] += n2n
+            #=========================================
+            #==========TODO - DEBUG REMOVE ===============================
+
+            #=========================================
+
+            # optional: light sample print (tune the interval to your device)
+            if (self.global_step % 10) == 0:
+                print(f"[mix/batch] 1S={n1} 2SC={n2c} 2SN={n2n}")
+
+            _batch_mix_stats.append((n1, n2c, n2n))
+
 
             # Freeze early layers only on the first epoch of warm start
             if epoch == self.start_epoch and self.phase.name == PhaseName.WARM_START:
@@ -141,6 +193,26 @@ class Trainer:
             if self.global_step % 100 == 0:
                 self._log_metrics({'train/loss': loss.item()}, self.global_step)
 
+        # ==========TODO - DEBUG REMOVE ===============================
+        total_seen = sum(mix_counts_epoch.values())
+        if total_seen > 0:
+            p1 = mix_counts_epoch["1s_noise"] / total_seen
+            p2c = mix_counts_epoch["2s_clean"] / total_seen
+            p2n = mix_counts_epoch["2s_noise"] / total_seen
+            try:
+                import numpy as np
+
+                arr = np.array(_batch_mix_stats, dtype=float)
+                m0, m1, m2 = arr.mean(0).tolist()
+                s0, s1, s2 = arr.std(0).tolist()
+                print(f"[mix/epoch] seen={total_seen} "
+                      f"pct=(1S={p1:.3f}, 2SC={p2c:.3f}, 2SN={p2n:.3f}) "
+                      f"batch_mean=({m0:.1f},{m1:.1f},{m2:.1f}) "
+                      f"batch_std=({s0:.1f},{s1:.1f},{s2:.1f})")
+            except Exception:
+                print(f"[mix/epoch] seen={total_seen} "
+                      f"pct=(1S={p1:.3f}, 2SC={p2c:.3f}, 2SN={p2n:.3f})")
+        # =========================================
         return {'loss': epoch_loss / num_batches}
 
 
@@ -180,7 +252,10 @@ class Trainer:
         val_loader = self.data_loader.get_val_loader(sample_type)
 
         if not val_loader:
+            print(f"No validation data for {sample_type.value}")
             return {}
+
+        print(f"Validating {sample_type.value} with {len(val_loader)} batches...")
 
         total_loss = 0
         num_batches = 0

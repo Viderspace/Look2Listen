@@ -25,8 +25,8 @@ class MixedDataLoader:
         :param train_paths: Paths to training datasets for each sample type.
         """
         # Create datasets
-        self.train_dataset = self._create_combined_dataset(train_paths)
-        self.val_datasets = self._create_separate_datasets(val_paths)
+        self.train_dataset : CombinedAVDataset = self._create_combined_dataset(train_paths)
+        self.val_datasets : Dict[SampleT, Dataset] = self._create_separate_datasets(val_paths)
 
         # Get sizes for sampler
         train_sizes = self._get_dataset_sizes(train_paths)
@@ -102,6 +102,7 @@ class MixedDataLoader:
 
     def get_val_loader(self, sample_type: SampleT) -> Optional[DataLoader]:
         if sample_type not in self.val_datasets:
+            print(f"Validation dataset for {sample_type} not found.")
             return None
 
         return DataLoader(
