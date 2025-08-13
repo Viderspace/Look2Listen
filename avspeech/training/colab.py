@@ -168,7 +168,8 @@ def get_preconfigured_datasets() -> List[DatasetDownloadDescriptor]:
     # Training datasets
     s1_noise_descriptor = DatasetDownloadDescriptor(
             sample_type=SampleT.S1_NOISE,
-            gcs_files=['gs://av_speech_60k_dataset/avspeech_1s_noise_subset10k.tar.gz'],
+            gcs_files=['gs://av_speech_60k_dataset/avspeech_1s_noise_subset10k.tar.gz',
+                       'gs://av_speech_60k_dataset/avspeech_1s_noise_subset5k_additional.tar.gz'],
             is_validation=False
     )
     s2_clean_descriptor = DatasetDownloadDescriptor(

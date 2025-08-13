@@ -42,10 +42,12 @@ class TrainingPhase:
     def main(cls, checkpoint_path: Optional[str] = None) -> 'TrainingPhase':
         return cls(
                 name= PhaseName.MAIN,
-                probabilities={SampleT.S1_NOISE: 0.10, SampleT.S2_CLEAN: 0.45, SampleT.S2_NOISE: 0.45},
+                # probabilities={SampleT.S1_NOISE: 0.10, SampleT.S2_CLEAN: 0.45, SampleT.S2_NOISE: 0.45},
+                probabilities={SampleT.S1_NOISE: 0.15, SampleT.S2_CLEAN: 0.425, SampleT.S2_NOISE: 0.425},
+
                 num_epochs=15,
-                learning_rate=8e-5,
-                min_lr=2e-5,
+                learning_rate=4e-5,
+                min_lr=5e-6,
                 resume_checkpoint=checkpoint_path
         )
 
