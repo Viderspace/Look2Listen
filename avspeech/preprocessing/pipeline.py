@@ -3,9 +3,8 @@ Preprocessing Pipeline Orchestrator
 Coordinates audio and video processing for training and inference
 """
 
-import json
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import List, Tuple
 import torch
 
 
@@ -59,13 +58,25 @@ def process_for_training(
     # Check video exists
     if not video_path.exists():
         raise FileNotFoundError(f"Video not found: {video_path}")
+    
+    try:
 
     # Process audio and video pipelines
-    audio_chunks : List[AudioChunk] = process_audio_for_training(video_path, noise_mixer)
-    video_chunks : List[torch.Tensor] = process_video_for_training(
-            mp4_path= clip_data.video_path_obj,
-            face_embedder=face_embedder,
-            face_hint_pos=(clip_data.clip_metadata.get("x", 0.5), clip_data.clip_metadata.get("y", 0.5)))
+        audio_chunks : List[AudioChunk] = process_audio_for_training(video_path, noise_mixer)
+
+    except Exception as e:
+        print(f"process_for_training() - Error processing audio {clip_data.unique_clip_id}: {e}")
+        return 0
+    
+    try:
+        video_chunks : List[torch.Tensor] = process_video_for_training(
+                mp4_path= clip_data.video_path_obj,
+                face_embedder=face_embedder,
+                face_hint_pos=(clip_data.clip_metadata.get("x", 0.5), clip_data.clip_metadata.get("y", 0.5)))
+
+    except Exception as e:
+        print(f"process_for_training() - Error processing video {clip_data.unique_clip_id}: {e}")
+        return 0
 
     # Validate alignment
     if not _validate_chunks(audio_chunks, video_chunks):
@@ -178,7 +189,7 @@ def process_single_clip(
                 output_dir=output_dir
         )
     except Exception as e:
-        print(f"Error processing {clip_data.unique_clip_id}: {e}")
+        print(f"process_single_clip() - Error processing {clip_data.unique_clip_id}: {e}")
         return 0
 
 
@@ -197,5 +208,6 @@ def pre_process_for_inference(
                 user_hint=(clip_data.clip_metadata.get("x", 0.5), clip_data.clip_metadata.get("y", 0.5))
         )
     except Exception as e:
-        print(f"Error processing {clip_data.unique_clip_id}: {e}")
+        print(f"pre_process_for_inference() - Error processing {clip_data.unique_clip_id}: {e}")
         return []
+

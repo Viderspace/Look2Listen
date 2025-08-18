@@ -8,17 +8,16 @@ Optimized to separate detection logic from debug image creation for performance.
 """
 
 import logging
-from typing import List, Tuple, Optional
-import numpy as np
+from typing import List, Optional, Tuple
+
 import cv2
+import numpy as np
 import torch
 import torch.nn.functional as F
-
 
 from avspeech.utils.constants import FACE_IMG_SZ
 from avspeech.utils.face_detection_toolbox import nms_faces
 from avspeech.utils.structs import FaceDetection
-
 
 confidence_threshold = 0.7  # Minimum detection confidence. Not sure it affects anything
 
@@ -44,39 +43,51 @@ class FaceEmbedder:
 
         self.frames_per_chunk = 75
 
-
         self.undetected_frame_count = 0
 
     def _init_detector(self):
         """Initialize MediaPipe face detection."""
         import mediapipe as mp
+
         mp_face_detection = mp.solutions.face_detection
         self.detector = mp_face_detection.FaceDetection(
-                model_selection=1,  # 0 for short-range (2m), 1 for full-range (5m)
-                min_detection_confidence= confidence_threshold
+            model_selection=1,  # 0 for short-range (2m), 1 for full-range (5m)
+            min_detection_confidence=confidence_threshold,
         )
 
     def _init_encoder(self):
         from facenet_pytorch import InceptionResnetV1
+
         """Initialize face encoder on MPS."""
         if not torch.backends.mps.is_available():
-            raise RuntimeError("MPS not available - this implementation requires Apple Silicon")
+            raise RuntimeError(
+                "MPS not available - this implementation requires Apple Silicon"
+            )
 
         self.device = torch.device("mps")
-        face_model = InceptionResnetV1(pretrained='vggface2', classify=False).to(self.device)
+        face_model = InceptionResnetV1(pretrained="vggface2", classify=False).to(
+            self.device
+        )
         self.encoder = TorchEmbedder(face_model, self.device)
 
     def print_missing_frame_count(self):
-        print(f"FaceEmbedder missed {self.undetected_frame_count} frames total (confidence = {confidence_threshold})")
+        print(
+            f"FaceEmbedder missed {self.undetected_frame_count} frames total (confidence = {confidence_threshold})"
+        )
 
-    def crop_faces(self, frames: List[np.ndarray], hint_x: float, hint_y: float) -> List[np.ndarray]:
-
+    def crop_faces(
+        self, frames: List[np.ndarray], hint_x: float, hint_y: float
+    ) -> List[np.ndarray]:
         face_crops = []
         successful_detections = 0
 
         for frame in frames:
             # MediaPipe expects RGB
-            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) if frame.shape[-1] == 3 else frame
+            rgb_frame = (
+                cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                if frame.shape[-1] == 3
+                else frame
+            )
 
             # Detect faces
             detections = self.detect_frame(rgb_frame)
@@ -95,11 +106,11 @@ class FaceEmbedder:
 
             face_crops.append(face_crop)  # Always valid crop (real or dummy)
 
-        # Log detection rate
         return face_crops
 
-    def detect_and_crop_faces(self, video_frames: List[np.ndarray], hint_x: float, hint_y: float) -> Tuple[
-        List[np.ndarray], List[Optional[object]]]:
+    def detect_and_crop_faces(
+        self, video_frames: List[np.ndarray], hint_x: float, hint_y: float
+    ) -> Tuple[List[np.ndarray], List[Optional[object]]]:
         """
         Detect faces in video frames and crop them to 160x160.
         Returns crops and raw detection objects (for optional debug image creation).
@@ -120,7 +131,11 @@ class FaceEmbedder:
 
         for frame_idx, frame in enumerate(video_frames):
             # MediaPipe expects RGB
-            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) if frame.shape[-1] == 3 else frame
+            rgb_frame = (
+                cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                if frame.shape[-1] == 3
+                else frame
+            )
 
             # Detect faces
             results = self.detect_frame(rgb_frame)
@@ -143,19 +158,15 @@ class FaceEmbedder:
             face_crops.append(face_crop)  # Always valid crop (real or dummy)
             detections.append(best_detection)  # None or MediaPipe detection object
 
-
         return face_crops, detections
 
-    def detect_frame(self, frame : np.ndarray)->List[FaceDetection]:
+    def detect_frame(self, frame: np.ndarray) -> List[FaceDetection]:
         raw_results = self.detector.process(frame).detections
         if not raw_results:
             return []
         all_detections = [FaceDetection(detection, frame) for detection in raw_results]
         without_overlaps = nms_faces(all_detections)
         return without_overlaps
-
-
-
 
     def compute_embeddings(self, face_crops: List[np.ndarray]) -> List[torch.Tensor]:
         """
@@ -201,7 +212,7 @@ class FaceEmbedder:
         # Split into chunks
         chunks = []
         for i in range(0, len(all_embeddings), self.frames_per_chunk):
-            chunk_embs = all_embeddings[i:i + self.frames_per_chunk]
+            chunk_embs = all_embeddings[i : i + self.frames_per_chunk]
 
             # Pad if needed to maintain consistent chunk size
             if len(chunk_embs) < self.frames_per_chunk:
@@ -213,11 +224,13 @@ class FaceEmbedder:
 
         return chunks
 
-# TODO - Migrate this method into a function in toolbox
-    def find_nearest_face(self, detections : List[FaceDetection], hint_x: float, hint_y: float)-> Optional[FaceDetection]:
+    # TODO - Migrate this method into a function in toolbox
+    def find_nearest_face(
+        self, detections: List[FaceDetection], hint_x: float, hint_y: float
+    ) -> Optional[FaceDetection]:
         """Find the face detection closest to the hint coordinates."""
         best_detection = None
-        min_distance = float('inf')
+        min_distance = float("inf")
 
         # frame_height, frame_width = frame_shape[:2]
 
@@ -231,7 +244,9 @@ class FaceEmbedder:
 
         return best_detection
 
-    def _crop_face_with_padding(self, frame: np.ndarray, detection : FaceDetection, padding_factor=0.15) -> np.ndarray:
+    def _crop_face_with_padding(
+        self, frame: np.ndarray, detection: FaceDetection, padding_factor=0.15
+    ) -> np.ndarray:
         """Crop face with padding for better context."""
         frame_height, frame_width = frame.shape[:2]
 
@@ -272,7 +287,12 @@ class FaceEmbedder:
             # Return dummy if crop failed
             return np.zeros((FACE_IMG_SZ, FACE_IMG_SZ, 3), dtype=np.uint8)
 
-    def draw_detection(self, frame: np.ndarray, detection : FaceDetection, color :Tuple[int,int,int] = (0, 255, 0)) -> np.ndarray:
+    def draw_detection(
+        self,
+        frame: np.ndarray,
+        detection: FaceDetection,
+        color: Tuple[int, int, int] = (0, 255, 0),
+    ) -> np.ndarray:
         """Draw detection bounding box on frame for debugging."""
         # Getting pre-calculated absolute coordinates (FaceDetection class)
         x1, y1, x2, y2 = detection.x1y1x2y2()
@@ -280,8 +300,15 @@ class FaceEmbedder:
         cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
 
         # Add confidence score
-        cv2.putText(frame, f'{detection.confidence:.2f}', (x1, y1 - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 2.0, color, 3)
+        cv2.putText(
+            frame,
+            f"{detection.confidence:.2f}",
+            (x1, y1 - 10),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            2.0,
+            color,
+            3,
+        )
 
         return frame
 

@@ -3,22 +3,22 @@ Clean app flow for face detection and processing.
 Minimal coordination of existing functions.
 """
 
-from typing import List, Tuple, Optional, Dict, Any
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
-import cv2
 import numpy as np
 import torch
-from pathlib import Path
+from components.video_handler import extract_segment
 
 from avspeech.utils.face_embedder import FaceEmbedder
-from avspeech.utils.video import extract_frames_for_inference, as_rgb
-from components.video_handler import extract_segment
+from avspeech.utils.video import as_rgb, extract_frames_for_inference
 
 
 @dataclass
 class AnalysisResult:
     """Result from analyze step - everything needed for next steps."""
+
     preview_image: np.ndarray  # Annotated best frame
     frames: List[np.ndarray]  # All extracted frames
     all_detections: List[Any]  # Detection results per frame
@@ -29,11 +29,9 @@ class AnalysisResult:
 
 # ======================== STEP 1: ANALYZE ========================
 
+
 def analyze_video_segment(
-        video_path: str,
-        start_time: float,
-        end_time: float,
-        face_embedder: FaceEmbedder
+    video_path: str, start_time: float, end_time: float, face_embedder: FaceEmbedder
 ) -> AnalysisResult:
     """
     Step 1: Analyze video segment.
@@ -68,7 +66,7 @@ def analyze_video_segment(
 
     # Create annotated preview image
     preview_image = frames[best_frame_idx].copy()
-    #convert to rgb
+    # convert to rgb
     preview_image = as_rgb(preview_image)
 
     # ** Best frame is the first one with most faces detected **
@@ -78,34 +76,37 @@ def analyze_video_segment(
         preview_image = face_embedder.draw_detection(preview_image, detection)
 
     # Extract bounding boxes for face selection UI
-    #TODO - Replace this below (redundant with FaceEmbedder) by introducing FaceDetection class to App scripts
+    # TODO - Replace this below (redundant with FaceEmbedder) by introducing FaceDetection class to App scripts
     best_frame_boxes = []
     for i, detection in enumerate(best_detections):
-        best_frame_boxes.append({
-                'face_id'   : i,
-                'x'         : detection.x1,
-                'y'         : detection.y1,
-                'width'     : detection.width(),
-                'height'    : detection.height(),
-                'confidence': detection.confidence
-        })
+        best_frame_boxes.append(
+            {
+                "face_id": i,
+                "x": detection.x1,
+                "y": detection.y1,
+                "width": detection.width(),
+                "height": detection.height(),
+                "confidence": detection.confidence,
+            }
+        )
 
     return AnalysisResult(
-            preview_image=preview_image,
-            frames=frames,
-            all_detections=all_detections,
-            best_frame_idx=best_frame_idx,
-            best_frame_boxes=best_frame_boxes,
-            segment_path=segment_path
+        preview_image=preview_image,
+        frames=frames,
+        all_detections=all_detections,
+        best_frame_idx=best_frame_idx,
+        best_frame_boxes=best_frame_boxes,
+        segment_path=segment_path,
     )
 
 
 # ======================== STEP 2: PROCESS WITH SELECTION ========================
 
+
 def process_with_face_selection(
-        analysis_result: AnalysisResult,
-        face_embedder: FaceEmbedder,
-        selected_face_id: Optional[int] = None
+    analysis_result: AnalysisResult,
+    face_embedder: FaceEmbedder,
+    selected_face_id: Optional[int] = None,
 ) -> Tuple[List[torch.Tensor], Tuple[float, float]]:
     """
     Step 2: Generate embeddings using selected face.
@@ -126,20 +127,21 @@ def process_with_face_selection(
         else:
             # No faces - use center
             h, w = analysis_result.frames[0].shape[:2]
-            selected_box = {'x': w // 2, 'y': h // 2, 'width': 0, 'height': 0}
+            selected_box = {"x": w // 2, "y": h // 2, "width": 0, "height": 0}
     else:
         # User selected a specific face
         selected_box = analysis_result.best_frame_boxes[selected_face_id]
 
     # Convert to relative hint coordinates (0-1)
     h, w = analysis_result.frames[0].shape[:2]
-    hint_x = (selected_box['x'] + selected_box['width'] / 2) / w
-    hint_y = (selected_box['y'] + selected_box['height'] / 2) / h
+    hint_x = (selected_box["x"] + selected_box["width"] / 2) / w
+    hint_y = (selected_box["y"] + selected_box["height"] / 2) / h
 
     # Now crop faces using the hint
     face_crops = []
-    for frame, detections in zip(analysis_result.frames, analysis_result.all_detections):
-
+    for frame, detections in zip(
+        analysis_result.frames, analysis_result.all_detections
+    ):
         if len(detections) > 1:
             # Find nearest face to the hint position
             best_detection = face_embedder.find_nearest_face(detections, hint_x, hint_y)
@@ -159,44 +161,127 @@ def process_with_face_selection(
     return face_embedding_chunks, (hint_x, hint_y)
 
 
-
-
-
 # ======================== STEP 3: RUN INFERENCE ========================
 
 
-def run_inference(audio_chunks, face_embeddings, sample_rate: int):
+def run_inference(
+    audio_chunks, face_embeddings, checkpoint_path: str, device: str = "cpu"
+):
     """
-    Returns a single enhanced mono waveform (float32, [-1,1]) and sample_rate.
-    Implement your model’s forward pass here.
-    """
-    # TODO: Replace this mock with your actual model inference
-    # Example shape assumptions:
-    # - audio_chunks: List[np.ndarray] of shape [T_chunk] at sample_rate
-    # - face_embeddings: List[np.ndarray] aligned per-chunk, or a single embedding
-    enhanced = np.concatenate(audio_chunks, axis=0).astype(np.float32)
-    return enhanced, sample_rate
+    Complete inference pipeline using the loaded model.
 
+    Args:
+        audio_chunks: List of STFT tensors from process_audio_for_inference
+        face_embeddings: List of face embedding tensors
+        checkpoint_path: Path to model checkpoint file
+        device: Device to run inference on
+
+    Returns:
+        Tuple of (enhanced_audio_tensor, original_audio_tensor)
+    """
+    import torch
+
+    import avspeech.utils.fourier_transform as fourier
+    from avspeech.model.av_model import AudioVisualModel
+
+    device = torch.device(device)
+
+    # Load model
+    model = AudioVisualModel().to(device)
+    checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=True)
+    model.load_state_dict(checkpoint["model_state_dict"])
+    model.eval()
+
+    inference_results = []
+
+    # Process each chunk
+    with torch.no_grad():
+        for audio_chunk, face_chunk in zip(audio_chunks, face_embeddings):
+            audio_chunk = audio_chunk.to(device)
+            face_chunk = face_chunk.to(device)
+
+            # Add batch dimension if missing
+            if len(audio_chunk.shape) == 3:
+                audio_chunk = audio_chunk.unsqueeze(0)
+            if len(face_chunk.shape) == 2:
+                face_chunk = face_chunk.unsqueeze(0)
+
+            # Run model - outputs mask for target speaker
+            mask = model(audio_chunk, face_chunk)
+
+            # Apply mask to enhance target speaker
+            enhanced_chunk = audio_chunk * mask
+            inference_results.append(enhanced_chunk.squeeze(0))
+
+    # Concatenate all STFTs along time dimension
+    full_enhanced_stft = torch.cat(inference_results, dim=1)
+    full_original_stft = torch.cat(audio_chunks, dim=1)
+
+    # Convert STFT back to audio
+    enhanced_audio = fourier.stft_to_audio(full_enhanced_stft)
+    original_audio = fourier.stft_to_audio(full_original_stft)
+
+    return enhanced_audio, original_audio
+
+
+def run_inference_with_clip_processor(
+    segment_path: str, face_hint: Tuple[float, float], checkpoint_path: str
+):
+    """
+    Alternative implementation using ClipProcessor for complete pipeline.
+
+    Args:
+        segment_path: Path to video segment
+        face_hint: (x, y) coordinates for face detection hint
+        checkpoint_path: Path to model checkpoint
+
+    Returns:
+        Tuple of (enhanced_audio_tensor, original_audio_tensor)
+    """
+    from avspeech.utils.ClipProcessor import ClipProcessor
+
+    # Create ClipProcessor and run complete pipeline
+    clip_processor = ClipProcessor(Path(segment_path))
+
+    if not clip_processor.is_video_loaded():
+        raise ValueError("Failed to load video segment")
+
+    # Set face hint and generate embeddings
+    clip_processor.set_face_hint(face_hint)
+
+    if not clip_processor.is_video_ready():
+        raise ValueError("Video processing failed")
+
+    # Run inference
+    enhanced_audio, original_audio = clip_processor.apply_inference(
+        Path(checkpoint_path)
+    )
+
+    return enhanced_audio, original_audio
 
 
 # ======================== CONVENIENCE FUNCTIONS ========================
 
+
 def get_status_message(analysis_result: AnalysisResult) -> str:
     num_faces = len(analysis_result.best_frame_boxes)
-    frames_with_faces = sum(1 for d in analysis_result.all_detections
-                            if len(d) > 0)
+    frames_with_faces = sum(1 for d in analysis_result.all_detections if len(d) > 0)
     total_frames = len(analysis_result.frames)
 
     if num_faces == 0:
         return f"⚠️ No faces detected in {total_frames} frames"
     elif num_faces == 1:
-        conf = analysis_result.best_frame_boxes[0]['confidence']
-        return (f"✅ 1 face detected (confidence: {conf:.2%})\n"
-                f"Found faces in {frames_with_faces}/{total_frames} frames")
+        conf = analysis_result.best_frame_boxes[0]["confidence"]
+        return (
+            f"✅ 1 face detected (confidence: {conf:.2%})\n"
+            f"Found faces in {frames_with_faces}/{total_frames} frames"
+        )
     else:
-        return (f"👥 {num_faces} faces detected\n"
-                f"Found faces in {frames_with_faces}/{total_frames} frames\n"
-                f"Click on a face to select")
+        return (
+            f"👥 {num_faces} faces detected\n"
+            f"Found faces in {frames_with_faces}/{total_frames} frames\n"
+            f"Click on a face to select"
+        )
 
 
 def auto_proceed_if_single_face(analysis_result: AnalysisResult) -> bool:

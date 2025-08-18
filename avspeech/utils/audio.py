@@ -5,13 +5,15 @@ Clean separation between training and inference modes
 
 import subprocess
 import tempfile
-import torch
-import soundfile as sf
 from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import List, Tuple
+
+import soundfile as sf
+import torch
+import torchaudio
+
 from avspeech.utils.noise_mixer import NoiseMixer
-from avspeech.utils.structs import AudioChunk
-import numpy as np
+from avspeech.utils.structs import AudioChunk, SampleT
 
 # Constants (move to config.py or constants.py)
 SAMPLE_RATE = 16000
@@ -24,9 +26,9 @@ SAMPLES_PER_CHUNK = 48000  # 3 seconds at 16kHz
 
 # Duration boundaries for training
 CHUNK_DURATIONS = {
-        1: 48000,  # 3 seconds
-        2: 96000,  # 6 seconds
-        3: 144000,  # 9 seconds
+    1: 48000,  # 3 seconds
+    2: 96000,  # 6 seconds
+    3: 144000,  # 9 seconds
 }
 
 
@@ -57,7 +59,7 @@ def extract_audio(video_path: Path, mode: str = "training") -> torch.Tensor:
         audio = raw_audio
 
     # Normalize to [-1, 1]
-    return _normalize_audio(audio)
+    return audio
 
 
 def compute_stft_features(audio: torch.Tensor) -> torch.Tensor:
@@ -80,8 +82,9 @@ def compute_stft_features(audio: torch.Tensor) -> torch.Tensor:
     return _apply_power_law_compression(stft_complex)
 
 
-def chunk_stft_features(features: torch.Tensor,
-                        frames_per_chunk: int = FRAMES_PER_CHUNK) -> List[torch.Tensor]:
+def chunk_stft_features(
+    features: torch.Tensor, frames_per_chunk: int = FRAMES_PER_CHUNK
+) -> List[torch.Tensor]:
     """
     Slice STFT features into fixed-size chunks.
 
@@ -112,6 +115,40 @@ def chunk_stft_features(features: torch.Tensor,
 
 # ─────────────────────── Core Audio Extraction ─────────────────────────
 
+
+# def _extract_raw_audio(video_path: Path) -> torch.Tensor:
+#     """
+#     Extract raw audio from video file using ffmpeg.
+
+#     Returns audio as float32 tensor at SAMPLE_RATE Hz.
+#     """
+#     # Load audio waveform and original sample rate
+#     try:
+#         waveform, orig_sr = torchaudio.load(
+#                 str(video_path),
+#                 backend="soundfile",  # Explicitly use ffmpeg backend
+#                 channels_first=True
+#             )
+
+
+#         # waveform shape: [channels, num_frames], dtype=float32 by default
+
+#         # Resample to 16 kHz if needed (TorchAudio will use efficient sinc resampler)
+#         if orig_sr != SAMPLE_RATE:
+#             waveform = resample(waveform, orig_sr, SAMPLE_RATE)
+
+#         # Downmix to mono by selecting the left channel (channel 0)
+#         if waveform.shape[0] > 1:
+#             waveform = waveform[0:1, :]  # keep only first channel
+
+#         # (Optionally, you can return waveform[0] to get a 1D tensor of samples)
+#         return waveform
+
+#     except Exception as e:
+#         print(f"Torchaudio dont like mp4s bro (Error loading audio: {e})")
+#         raise e
+
+
 def _extract_raw_audio(video_path: Path) -> torch.Tensor:
     """
     Extract raw audio from video file using ffmpeg.
@@ -121,17 +158,24 @@ def _extract_raw_audio(video_path: Path) -> torch.Tensor:
     if not video_path.exists():
         raise FileNotFoundError(f"Video file not found: {video_path}")
 
-    print(f"  Extracting audio from: {video_path}")
+    # print(f"  Extracting audio from: {video_path}")
 
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
         # Extract mono audio at target sample rate
         cmd = [
-                "ffmpeg", "-v", "error", "-y",
-                "-i", str(video_path),
-                "-ar", str(SAMPLE_RATE),
-                "-ac", "1",  # Mono
-                "-acodec", "pcm_s16le",
-                tmp.name
+            "ffmpeg",
+            "-v",
+            "error",
+            "-y",
+            "-i",
+            str(video_path),
+            "-ar",
+            str(SAMPLE_RATE),
+            "-ac",
+            "1",  # Mono
+            "-acodec",
+            "pcm_s16le",
+            tmp.name,
         ]
 
         try:
@@ -141,7 +185,7 @@ def _extract_raw_audio(video_path: Path) -> torch.Tensor:
 
         # Load the extracted audio
         try:
-            wav_data, sr = sf.read(tmp.name, dtype='float32')
+            wav_data, sr = sf.read(tmp.name, dtype="float32")
 
             if sr != SAMPLE_RATE:
                 raise ValueError(f"Sample rate mismatch: {sr} != {SAMPLE_RATE}")
@@ -149,7 +193,9 @@ def _extract_raw_audio(video_path: Path) -> torch.Tensor:
             if len(wav_data) == 0:
                 raise RuntimeError("Extracted audio is empty")
 
-            print(f"  Extracted {len(wav_data)} samples ({len(wav_data) / SAMPLE_RATE:.1f}s)")
+            # print(
+            #     f"  Extracted {len(wav_data)} samples ({len(wav_data) / SAMPLE_RATE:.1f}s)"
+            # )
 
             return torch.from_numpy(wav_data).float()
 
@@ -158,6 +204,7 @@ def _extract_raw_audio(video_path: Path) -> torch.Tensor:
 
 
 # ─────────────────────── Mode-Specific Processing ─────────────────────────
+
 
 def _process_for_training(audio: torch.Tensor) -> torch.Tensor:
     """
@@ -170,20 +217,19 @@ def _process_for_training(audio: torch.Tensor) -> torch.Tensor:
     min_samples = CHUNK_DURATIONS[1]  # 3 seconds minimum
 
     if num_samples < min_samples:
-        raise ValueError(f"Audio too short for training: {num_samples} < {min_samples} samples")
+        raise ValueError(
+            f"Audio too short for training: {num_samples} < {min_samples} samples"
+        )
 
     # Determine how many complete chunks we can use
     if num_samples >= CHUNK_DURATIONS[3]:  # >= 9 seconds
-        audio = audio[:CHUNK_DURATIONS[3]]
-        chunks = 3
-    elif num_samples >= CHUNK_DURATIONS[2]:  # >= 6 seconds
-        audio = audio[:CHUNK_DURATIONS[2]]
-        chunks = 2
-    else:  # >= 3 seconds
-        audio = audio[:CHUNK_DURATIONS[1]]
-        chunks = 1
+        audio = audio[: CHUNK_DURATIONS[3]]
 
-    print(f"  Trimmed to {chunks} chunk(s) ({len(audio)} samples, {len(audio) / SAMPLE_RATE:.1f}s)")
+    elif num_samples >= CHUNK_DURATIONS[2]:  # >= 6 seconds
+        audio = audio[: CHUNK_DURATIONS[2]]
+
+    else:  # >= 3 seconds
+        audio = audio[: CHUNK_DURATIONS[1]]
 
     return audio
 
@@ -200,16 +246,19 @@ def _process_for_inference(audio: torch.Tensor) -> torch.Tensor:
     remainder = num_samples % SAMPLES_PER_CHUNK
     if remainder != 0:
         pad_size = SAMPLES_PER_CHUNK - remainder
-        audio = torch.nn.functional.pad(audio, (0, pad_size), mode='constant', value=0)
+        audio = torch.nn.functional.pad(audio, (0, pad_size), mode="constant", value=0)
 
         num_chunks = len(audio) // SAMPLES_PER_CHUNK
-        print(f"  Padded to {num_chunks} chunks ({len(audio)} samples, "
-              f"added {pad_size} zeros)")
+        print(
+            f"  Padded to {num_chunks} chunks ({len(audio)} samples, "
+            f"added {pad_size} zeros)"
+        )
 
     return audio
 
 
 # ─────────────────────── STFT Processing ─────────────────────────
+
 
 def _pad_for_stft(audio: torch.Tensor) -> torch.Tensor:
     """Pad audio tail for STFT to include last frame."""
@@ -224,14 +273,14 @@ def _compute_stft(audio: torch.Tensor) -> torch.Tensor:
     window = torch.hann_window(STFT_WIN_LENGTH, device=audio.device)
 
     return torch.stft(
-            audio,
-            n_fft=STFT_N_FFT,
-            hop_length=STFT_HOP_LENGTH,
-            win_length=STFT_WIN_LENGTH,
-            window=window,
-            return_complex=True,
-            center=False,
-            pad_mode='reflect'
+        audio,
+        n_fft=STFT_N_FFT,
+        hop_length=STFT_HOP_LENGTH,
+        win_length=STFT_WIN_LENGTH,
+        window=window,
+        return_complex=True,
+        center=False,
+        pad_mode="reflect",
     )
 
 
@@ -250,10 +299,12 @@ def _apply_power_law_compression(stft_complex: torch.Tensor) -> torch.Tensor:
 
     return torch.stack([real_compressed, imag_compressed], dim=-1)
 
+
 # ─────────────────────── ISTFT Processing ─────────────────────────
 
 
 # ─────────────────────── Utility Functions ─────────────────────────
+
 
 def _normalize_audio(audio: torch.Tensor) -> torch.Tensor:
     """Normalize audio to [-1, 1] range."""
@@ -265,8 +316,65 @@ def _normalize_audio(audio: torch.Tensor) -> torch.Tensor:
 
 # ─────────────────────── High-Level Pipeline Functions ─────────────────────────
 
-def process_audio_for_training(video_path: Path,
-                               noise_mixer: NoiseMixer) -> List[AudioChunk]:
+
+def add_noise_to_audio(
+    waveform: torch.Tensor,
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    noise_mixer = NoiseMixer(noise_root=Path("data/musan"))
+    s1 = noise_mixer.mix_1s_noise(waveform)
+    s2c = noise_mixer.mix_2s_clean(waveform)
+    s2n = noise_mixer.mix_paper_2s_noise(waveform)
+    return s1, s2c, s2n
+
+
+def process_audio_with_noise(
+    video_path: Path, noise_type: SampleT = SampleT.S1_NOISE
+) -> List[torch.Tensor]:
+    # Extract and process audio for inference
+    audio = extract_audio(video_path, mode="inference")
+    noised = add_noise_to_audio(audio)[
+        0
+        if noise_type == SampleT.S1_NOISE
+        else 1
+        if noise_type == SampleT.S2_CLEAN
+        else 2
+    ]
+
+    # Compute STFT features
+    # clean_stft = compute_stft_features(audio)
+    noiseds_stft = compute_stft_features(noised)
+
+    # Chunk for model input
+    # clean_embeddings = chunk_stft_features(clean_stft)
+    noised_embeddings = chunk_stft_features(noiseds_stft)
+    return noised_embeddings
+
+
+def save_audio(audio: torch.Tensor, video_path: Path, suffix: str = "mixed") -> None:
+    debug_dir = Path("./debug")
+    debug_dir.mkdir(exist_ok=True)
+
+    # Use absolute path to avoid working directory issues
+    path = debug_dir / f"{video_path.stem}_{suffix}.wav"
+
+    # Ensure tensor is on CPU and detached from computation graph
+    audio_cpu = audio.detach().cpu()
+
+    # For torchaudio.save, tensor should be shape (channels, samples)
+    # Our audio is mono (1D), so we need to add a channel dimension
+    if audio_cpu.dim() == 1:
+        audio_cpu = audio_cpu.unsqueeze(
+            0
+        )  # Add channel dimension: (samples,) -> (1, samples)
+
+    print(f"Saving debug audio with shape: {audio_cpu.shape}")
+    torchaudio.save(str(path), audio_cpu, SAMPLE_RATE)
+    print(f"  Debug audio saved to: {path}")
+
+
+def process_audio_for_training(
+    video_path: Path, noise_mixer: NoiseMixer
+) -> List[AudioChunk]:
     """
     Complete training pipeline: extract → trim → add noise → compute STFT → chunk.
 
@@ -284,11 +392,20 @@ def process_audio_for_training(video_path: Path,
 
     # Mix original clip's audio with noise - (1S+Noise, 2S_Clean, 2S+Noise)
     mixed_audio = noise_mixer.mix_with_selected_set_type(clean_audio)
+
+    save_debug_audio = False
+    if save_debug_audio:
+        # Ensure debug directory exists
+        save_audio(mixed_audio, video_path)
+
     mixed_stft = compute_stft_features(mixed_audio)
     mixed_embedding = chunk_stft_features(mixed_stft)
 
     # return Pairs of (clean_embedding, mixed_embedding)
-    return [AudioChunk(clean_emb, mixed_emb) for clean_emb, mixed_emb in zip(clean_embedding, mixed_embedding)]
+    return [
+        AudioChunk(clean_emb, mixed_emb)
+        for clean_emb, mixed_emb in zip(clean_embedding, mixed_embedding)
+    ]
 
 
 def process_audio_for_inference(video_path: Path) -> List[torch.Tensor]:
@@ -304,7 +421,6 @@ def process_audio_for_inference(video_path: Path) -> List[torch.Tensor]:
     # Extract and process audio for inference
     audio = extract_audio(video_path, mode="inference")
 
-
     # Compute STFT features
     features_stft = compute_stft_features(audio)
 
@@ -315,6 +431,7 @@ def process_audio_for_inference(video_path: Path) -> List[torch.Tensor]:
 
 
 # ─────────────────────── Backward Compatibility ─────────────────────────
+
 
 def extract_audio_from_clip(mp4_path: Path, trim: bool = True) -> torch.Tensor:
     """Legacy function for backward compatibility."""
@@ -327,6 +444,8 @@ def stft_once(audio: torch.Tensor) -> torch.Tensor:
     return compute_stft_features(audio)
 
 
-def slice_stft_features(features: torch.Tensor, frames_per_chunk: int = 298) -> List[torch.Tensor]:
+def slice_stft_features(
+    features: torch.Tensor, frames_per_chunk: int = 298
+) -> List[torch.Tensor]:
     """Legacy function for backward compatibility."""
     return chunk_stft_features(features, frames_per_chunk)

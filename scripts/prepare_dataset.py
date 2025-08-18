@@ -12,21 +12,21 @@ import argparse
 import time
 from pathlib import Path
 from typing import Dict
+
 from tqdm import tqdm
 
-from avspeech.preprocessing.pipeline import process_single_clip, init_models
 from avspeech.preprocessing.clips_loader import DataLoader
+from avspeech.preprocessing.pipeline import init_models, process_single_clip
 from avspeech.utils.face_embedder import FaceEmbedder
 from avspeech.utils.noise_mixer import NoiseMixer
 from avspeech.utils.structs import SampleT
-from avspeech.utils.constants import SAMPLE_RATE
 
 
 def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-            description="Prepare AV-Speech training dataset from video clips",
-            formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        description="Prepare AV-Speech training dataset from video clips",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
     # Get the project root directory (parent of scripts/)
@@ -35,41 +35,34 @@ def parse_arguments():
 
     # Required arguments
     parser.add_argument(
-            "clips_dir",
-            type=Path,
-            help="Directory containing AVSpeech video clips"
+        "clips_dir", type=Path, help="Directory containing AVSpeech video clips"
     )
     parser.add_argument(
-            "output_dir",
-            type=Path,
-            help="Output directory for processed dataset"
+        "output_dir", type=Path, help="Output directory for processed dataset"
     )
 
     # Optional arguments with defaults relative to project root
     parser.add_argument(
-            "--metadata",
-            type=Path,
-            default=project_root / "data" / "metadata.jsonl",
-            help="Path to AVSpeech metadata file"
+        "--metadata",
+        type=Path,
+        default=project_root / "data" / "metadata.jsonl",
+        help="Path to AVSpeech metadata file",
     )
     parser.add_argument(
-            "--noise-dir",
-            type=Path,
-            default=project_root / "data" / "musan",
-            help="Path to MUSAN noise dataset"
+        "--noise-dir",
+        type=Path,
+        default=project_root / "data" / "musan",
+        help="Path to MUSAN noise dataset",
     )
     parser.add_argument(
-            "--max-clips",
-            type=int,
-            default=0,
-            help="Maximum clips to process (0=all)"
+        "--max-clips", type=int, default=0, help="Maximum clips to process (0=all)"
     )
     parser.add_argument(
-            "--augmentation",
-            type=SampleT,
-            choices=list(SampleT),
-            default=SampleT.S1_NOISE,
-            help="Type of noise augmentation"
+        "--augmentation",
+        type=SampleT,
+        choices=list(SampleT),
+        default=SampleT.S1_NOISE,
+        help="Type of noise augmentation",
     )
 
     return parser.parse_args()
@@ -99,41 +92,40 @@ def validate_environment(args) -> None:
         print("\nPlease run: python scripts/setup_data.py")
         raise FileNotFoundError("Missing required data files")
 
-    print(f"✓ Environment validated")
+    print("✓ Environment validated")
+
 
 def sample_already_processed(clip_id: str, output_dir: Path) -> bool:
     """Check if a clip has already been processed and saved in that output folder."""
     clip_output_dir = output_dir / f"_{clip_id}_0"
-    return  clip_output_dir.exists()
+    return clip_output_dir.exists()
+
 
 def process_dataset(
-        data_loader: DataLoader,
-        output_dir: Path,
-        face_embedder: FaceEmbedder,
-        noise_mixer: NoiseMixer
+    data_loader: DataLoader,
+    output_dir: Path,
+    face_embedder: FaceEmbedder,
+    noise_mixer: NoiseMixer,
 ) -> Dict[str, int]:
     """Process all clips in the dataset."""
 
-    stats = {
-            "processed" : 0,
-            "failed"    : 0,
-            "chunks"    : 0,
-            "start_time": time.time()
-    }
+    stats = {"processed": 0, "failed": 0, "chunks": 0, "start_time": time.time()}
 
-    for clip_data in tqdm(data_loader, desc="Processing"):
+    progress_bar = tqdm(data_loader, desc="Processing")
+    chunks_limit = 2300
+
+    for clip_data in progress_bar:
         try:
             # check if the folder for this clip already exists
             if sample_already_processed(clip_data.unique_clip_id, output_dir):
                 print(f"Skipping already processed clip: {clip_data.unique_clip_id}")
                 continue
 
-
             chunks_created = process_single_clip(
-                    face_embedder=face_embedder,
-                    clip_data=clip_data,
-                    noise_mixer=noise_mixer,
-                    output_dir=output_dir,
+                face_embedder=face_embedder,
+                clip_data=clip_data,
+                noise_mixer=noise_mixer,
+                output_dir=output_dir,
             )
 
             if chunks_created > 0:
@@ -142,11 +134,34 @@ def process_dataset(
             else:
                 stats["failed"] += 1
 
+            elapsed = time.time() - stats["start_time"]
+            total_clips = stats["processed"] + stats["failed"]
+            clips_per_min = (total_clips / elapsed * 60) if elapsed > 0 else 0
+            avg_chunks = (
+                stats["chunks"] / stats["processed"] if stats["processed"] > 0 else 0
+            )
+
+            progress_bar.set_postfix(
+                {
+                    "✓": stats["processed"],
+                    "✗": stats["failed"],
+                    "chunks": f"{stats['chunks']}/{chunks_limit}",
+                    "avg": f"{avg_chunks:.1f}",
+                    "rate": f"{clips_per_min:.1f}/min",
+                }
+            )
+
+            if stats["chunks"] >= chunks_limit:
+                print("\nChunks limit reached. Stopping processing.")
+                break
+
         except KeyboardInterrupt:
             print("\nProcessing interrupted")
             break
         except Exception as e:
-            print(f"\nError processing {clip_data.unique_clip_id}: {e}")
+            print(
+                f"\n process_dataset() - Error processing {clip_data.unique_clip_id}: {e}"
+            )
             stats["failed"] += 1
             continue
 
@@ -164,7 +179,7 @@ def print_summary(stats: Dict[str, int]) -> None:
     print(f"Chunks:    {stats['chunks']} (3-second segments)")
     print(f"Time:      {stats['elapsed'] / 60:.1f} minutes")
 
-    if stats['processed'] > 0:
+    if stats["processed"] > 0:
         print(f"\nAverage chunks per clip: {stats['chunks'] / stats['processed']:.1f}")
         print(f"Total training duration: {stats['chunks'] * 3 / 60:.1f} minutes")
 
@@ -182,15 +197,23 @@ def main():
     # Initialize components
     print("Initializing models...")
     data_loader = DataLoader(
-            clips_dir=args.clips_dir,
-            metadata_path=args.metadata,
-            max_clips=args.max_clips,
+        clips_dir=args.clips_dir,
+        metadata_path=args.metadata,
+        max_clips=args.max_clips,
     )
     face_embedder = init_models()
-    noise_mixer = NoiseMixer(
-            noise_root=args.noise_dir,
-            set_type=args.augmentation,
-            sample_rate=SAMPLE_RATE
+
+    new_speech_root = Path(
+        "/Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/scripts/data/speech_library"
+    )
+    new_noise_root = Path(
+        "/Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/data/noise"
+    )
+
+    noise_mixer = NoiseMixer.from_audio_dirs(
+        speech_root=new_speech_root,
+        # noise_root=new_noise_root,
+        set_type=SampleT.S2_CLEAN,
     )
 
     # Process dataset
@@ -206,4 +229,8 @@ if __name__ == "__main__":
 
 
 # Example usage:
-# python scripts/prepare_dataset.py --max-clips 2 --augmentation 2s_clean /Users/jonatanvider/Downloads/AVSpeech/clips/al-aq/al-an /Users/jonatanvider/Downloads/AVSpeech/New_2s_Datasets/2s_clean_al_an
+# python prepare_dataset.py /Users/jonatanvider/Downloads/AVSpeech/clips/al-aq /Users/jonatanvider/Desktop/Look2Listen_Stuff/NEW_DB
+#
+
+# /Users/jonatanvider/Downloads/AVSpeech/clips/xau-xba
+# /Users/jonatanvider/Desktop/Look2Listen_Stuff/Main_Dataset/S2N/S2N_45K

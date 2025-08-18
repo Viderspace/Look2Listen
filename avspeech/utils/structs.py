@@ -48,6 +48,8 @@ class Sample(NamedTuple):
 
 
 
+
+
 class FaceDetection:
     """Small adapter for a face detection data (bounding box, confidence, etc.)"""
     x1: int

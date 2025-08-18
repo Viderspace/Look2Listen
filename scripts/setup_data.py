@@ -7,29 +7,27 @@ This script downloads:
 - AVSpeech metadata
 """
 
-import os
 import tarfile
-import zipfile
 from pathlib import Path
 from urllib.request import urlretrieve
-from tqdm import tqdm
 
+from tqdm import tqdm
 
 # Dataset URLs and info
 DATASETS = {
-        "musan"            : {
-                "url"        : "https://www.openslr.org/resources/17/musan.tar.gz",
-                "size"       : "11GB",
-                "extract_to" : "data/musan",
-                "description": "MUSAN noise dataset for augmentation"
-        },
-        "avspeech_metadata": {
-                "url"        : "https://looking-to-listen.github.io/avspeech/",  # Replace with actual URL
-                "size"       : "500MB",
-                "extract_to" : "data/avspeech_metadata.jsonl",
-                "description": "AVSpeech face detection metadata",
-                "torrent"    : "magnet:?xt=urn:btih:%EF%BF%BDx%EF%BF%BD\%EF%BF%BDG%EF%BF%BD%EF%BF%BD%EF%BF%BD~%EF%BF%BD*4%EF%BF%BD1%EF%BF%BD%EF%BF%BD]%EF%BF%BDA&tr=https%3A%2F%2Facademictorrents.com%2Fannounce.php&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce"
-        }
+    "musan": {
+        "url": "https://www.openslr.org/resources/17/musan.tar.gz",
+        "size": "11GB",
+        "extract_to": "data/musan",
+        "description": "MUSAN noise dataset for augmentation",
+    },
+    "avspeech_metadata": {
+        "url": "https://looking-to-listen.github.io/avspeech/",  # Replace with actual URL
+        "size": "500MB",
+        "extract_to": "data/avspeech_metadata.jsonl",
+        "description": "AVSpeech face detection metadata",
+        "torrent": "magnet:?xt=urn:btih:%EF%BF%BDx%EF%BF%BD\%EF%BF%BDG%EF%BF%BD%EF%BF%BD%EF%BF%BD~%EF%BF%BD*4%EF%BF%BD1%EF%BF%BD%EF%BF%BD]%EF%BF%BDA&tr=https%3A%2F%2Facademictorrents.com%2Fannounce.php&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce",
+    },
 }
 
 
@@ -44,7 +42,9 @@ class DownloadProgressBar(tqdm):
 
 def download_file(url: str, output_path: Path):
     """Download file with progress bar."""
-    with DownloadProgressBar(unit='B', unit_scale=True, miniters=1, desc=output_path.name) as t:
+    with DownloadProgressBar(
+        unit="B", unit_scale=True, miniters=1, desc=output_path.name
+    ) as t:
         urlretrieve(url, output_path, reporthook=t.update_to)
 
 
@@ -59,10 +59,10 @@ def setup_musan(data_dir: Path):
     print("\nMUSAN Noise Dataset")
     print("-" * 40)
     print(f"Size: {DATASETS['musan']['size']}")
-    print(f"Used for: Audio augmentation during training")
+    print("Used for: Audio augmentation during training")
 
     response = input("\nDownload MUSAN dataset? [y/N]: ")
-    if response.lower() != 'y':
+    if response.lower() != "y":
         print("Skipping MUSAN download")
         print("You can manually download from:")
         print(f"  {DATASETS['musan']['url']}")
@@ -71,11 +71,11 @@ def setup_musan(data_dir: Path):
     # Download
     tar_path = data_dir / "musan.tar.gz"
     print(f"\nDownloading to {tar_path}...")
-    download_file(DATASETS['musan']['url'], tar_path)
+    download_file(DATASETS["musan"]["url"], tar_path)
 
     # Extract
     print("Extracting...")
-    with tarfile.open(tar_path, 'r:gz') as tar:
+    with tarfile.open(tar_path, "r:gz") as tar:
         tar.extractall(data_dir)
 
     # Clean up
@@ -94,7 +94,7 @@ def setup_metadata(data_dir: Path):
     print("\nAVSpeech Metadata")
     print("-" * 40)
     print(f"Size: {DATASETS['avspeech_metadata']['size']}")
-    print(f"Contains: Face detection coordinates for all videos")
+    print("Contains: Face detection coordinates for all videos")
 
     print("\nDownload options:")
     print("1. Direct download (if available)")
@@ -105,13 +105,13 @@ def setup_metadata(data_dir: Path):
 
     if choice == "1":
         # Direct download
-        url = DATASETS['avspeech_metadata'].get('url')
+        url = DATASETS["avspeech_metadata"].get("url")
         if url and not url.startswith("https://example.com"):
             print(f"Downloading {metadata_path.name}...")
             download_file(url, metadata_path)
         else:
             print("Direct download URL not configured")
-            print(f"Please download manually from the AVSpeech website")
+            print("Please download manually from the AVSpeech website")
 
     elif choice == "2":
         # Torrent

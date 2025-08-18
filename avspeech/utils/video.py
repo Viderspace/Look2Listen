@@ -1,10 +1,10 @@
+from pathlib import Path
+from typing import List, Optional, Set, Tuple
+
 import cv2
 import numpy as np
-import logging
-from pathlib import Path
-from typing import List, Optional, Tuple, Set
-from avspeech.utils.constants import *
-from avspeech.preprocessing.clips_loader import ClipData
+import torch
+
 from avspeech.utils.face_embedder import FaceEmbedder
 
 # Constants
@@ -16,9 +16,10 @@ MAX_TRAINING_FRAMES = 225  # 9 seconds max for training
 def as_rgb(frame: np.ndarray) -> np.ndarray:
     return cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) if len(frame.shape) == 3 else frame
 
-def extract_frames(video_path: Path,
-                   target_fps: int = TARGET_FPS,
-                   mode: str = "training") -> List[np.ndarray]:
+
+def extract_frames(
+    video_path: Path, target_fps: int = TARGET_FPS, mode: str = "training"
+) -> List[np.ndarray]:
     """
     Extract frames from video with mode-specific processing.
 
@@ -41,10 +42,12 @@ def extract_frames(video_path: Path,
     try:
         # Calculate which frames to grab (handles FPS resampling)
         frame_indices = _calculate_resample_indices(
-                video_info['total_frames'],
-                video_info['fps'],
-                target_fps,
-                max_frames=MAX_TRAINING_FRAMES if mode == "training" else None
+            video_info["total_frames"],
+            video_info["fps"],
+            target_fps,
+            # TODO - instead of none, force a max frames limit (say 15-20 minutes of video)
+            #  in a new app components file 'rules.py'
+            max_frames=MAX_TRAINING_FRAMES if mode == "training" else None,
         )
 
         # Extract the frames
@@ -63,7 +66,9 @@ def extract_frames(video_path: Path,
         cap.release()
 
 
-def _open_and_analyze_video(video_path: Path) -> Tuple[Optional[cv2.VideoCapture], dict]:
+def _open_and_analyze_video(
+    video_path: Path,
+) -> Tuple[Optional[cv2.VideoCapture], dict]:
     """
     Open video file and extract metadata.
 
@@ -76,23 +81,29 @@ def _open_and_analyze_video(video_path: Path) -> Tuple[Optional[cv2.VideoCapture
         return None, {}
 
     video_info = {
-            'fps'         : cap.get(cv2.CAP_PROP_FPS),
-            'total_frames': int(cap.get(cv2.CAP_PROP_FRAME_COUNT)),
-            'width'       : int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
-            'height'      : int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
+        "fps": cap.get(cv2.CAP_PROP_FPS),
+        "total_frames": int(cap.get(cv2.CAP_PROP_FRAME_COUNT)),
+        "width": int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
+        "height": int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
     }
-    video_info['duration'] = video_info['total_frames'] / video_info['fps'] if video_info['fps'] > 0 else 0
+    video_info["duration"] = (
+        video_info["total_frames"] / video_info["fps"] if video_info["fps"] > 0 else 0
+    )
 
-    print(f"  Video: {video_info['total_frames']} frames @ {video_info['fps']:.1f} FPS "
-          f"({video_info['duration']:.1f}s)")
+    # print(
+    #     f"  Video: {video_info['total_frames']} frames @ {video_info['fps']:.1f} FPS "
+    #     f"({video_info['duration']:.1f}s)"
+    # )
 
     return cap, video_info
 
 
-def _calculate_resample_indices(total_frames: int,
-                                original_fps: float,
-                                target_fps: float,
-                                max_frames: Optional[int] = None) -> Optional[Set[int]]:
+def _calculate_resample_indices(
+    total_frames: int,
+    original_fps: float,
+    target_fps: float,
+    max_frames: Optional[int] = None,
+) -> Optional[Set[int]]:
     """
     Calculate which frame indices to extract for FPS resampling.
 
@@ -130,14 +141,17 @@ def _calculate_resample_indices(total_frames: int,
 
     indices = np.linspace(0, total_frames - 1, desired_frames).astype(int)
 
-    print(f"  Resampling: {total_frames} frames @ {original_fps:.1f} FPS "
-          f"→ {desired_frames} frames @ {target_fps:.1f} FPS")
+    # print(
+    #     f"  Resampling: {total_frames} frames @ {original_fps:.1f} FPS "
+    #     f"→ {desired_frames} frames @ {target_fps:.1f} FPS"
+    # )
 
     return set(indices.tolist())
 
 
-def _read_frames_from_video(cap: cv2.VideoCapture,
-                            frame_indices: Optional[Set[int]]) -> List[np.ndarray]:
+def _read_frames_from_video(
+    cap: cv2.VideoCapture, frame_indices: Optional[Set[int]]
+) -> List[np.ndarray]:
     """
     Read frames from video, optionally filtering by indices.
 
@@ -162,7 +176,7 @@ def _read_frames_from_video(cap: cv2.VideoCapture,
 
         frame_idx += 1
 
-    print(f"  Extracted {len(frames)} frames")
+    # print(f"  Extracted {len(frames)} frames")
     return frames
 
 
@@ -206,8 +220,10 @@ def _process_for_inference(frames: List[np.ndarray]) -> List[np.ndarray]:
         pad_size = FRAMES_PER_CHUNK - remainder
         padding = [np.zeros_like(frames[0])] * pad_size
         frames.extend(padding)
-        print(f"  Padded with {pad_size} frames to reach chunk boundary "
-              f"({len(frames)} total)")
+        print(
+            f"  Padded with {pad_size} frames to reach chunk boundary "
+            f"({len(frames)} total)"
+        )
 
     return frames
 
@@ -224,13 +240,12 @@ def extract_frames_for_inference(video_path: Path) -> List[np.ndarray]:
 
 
 # Backward compatibility wrapper
-def extract_frames_legacy(mp4_path: Path,
-                          target_fps: int = TARGET_FPS,
-                          trim: bool = True) -> List[np.ndarray]:
+def extract_frames_legacy(
+    mp4_path: Path, target_fps: int = TARGET_FPS, trim: bool = True
+) -> List[np.ndarray]:
     """Legacy function signature for backward compatibility."""
     mode = "training" if trim else "inference"
     return extract_frames(mp4_path, target_fps=target_fps, mode=mode)
-
 
 
 """
@@ -239,11 +254,13 @@ Main pre processing calls
 
 
 def process_video_for_inference(
-        mp4_path: Path,
-        face_embedder: FaceEmbedder,
-        user_hint: [Tuple[float, float]] = (0.5, 0.5)  # Default hint. center is enough if only 1 face
+    mp4_path: Path,
+    face_embedder: FaceEmbedder,
+    user_hint: [Tuple[float, float]] = (
+        0.5,
+        0.5,
+    ),  # Default hint. center is enough if only 1 face
 ) -> List[torch.Tensor]:
-
     # Extract video frames
     video_frames = extract_frames_for_inference(mp4_path)
     if not video_frames:
@@ -252,15 +269,35 @@ def process_video_for_inference(
     # Core processing: always needed
     face_crops = face_embedder.crop_faces(video_frames, user_hint[0], user_hint[1])
     face_embeddings_chunks = face_embedder.compute_embeddings(face_crops)
-    print(f"  Extracted {len(face_embeddings_chunks)} face embeddings from {len(video_frames)} frames")
+    print(
+        f"  Extracted {len(face_embeddings_chunks)} face embeddings from {len(video_frames)} frames"
+    )
     return face_embeddings_chunks
 
 
+def process_frames_for_inference(
+    frames: List[np.ndarray], hint_pos: Tuple[float, float]
+) -> List[torch.Tensor]:
+    """
+    Process a list of frames for inference using the provided hint position.
+
+    Args:
+        frames: List of video frames as numpy arrays
+        hint_pos: Tuple of (hint_x, hint_y) for face cropping
+
+    Returns:
+        List of face embeddings as torch tensors
+    """
+    if not frames:
+        raise ValueError("No frames provided for inference")
+
+    face_embedder = FaceEmbedder()  # Initialize your face embedder here
+    face_crops = face_embedder.crop_faces(frames, hint_pos[0], hint_pos[1])
+    return face_embedder.compute_embeddings(face_crops)
+
 
 def process_video_for_training(
-        mp4_path: Path,
-        face_embedder: FaceEmbedder,
-        face_hint_pos: Tuple[float, float]
+    mp4_path: Path, face_embedder: FaceEmbedder, face_hint_pos: Tuple[float, float]
 ) -> List[torch.Tensor]:
     """
     Complete video/face pipeline with optimized debug processing.
