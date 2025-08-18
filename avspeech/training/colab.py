@@ -151,32 +151,66 @@ class PreStagingManager:
             shutil.rmtree(temp_extract_dir)
             tar_path.unlink(missing_ok=True)
 
+    #======== Flattening logic for extracted content ================ (Both flat and nested structures)
+
     def _flatten_extracted_content(self, temp_dir: Path, target_dir: Path) -> None:
         """
-        Simple flattening assuming structure: extracted_folder/sample_directories/
+        Move sample directories from temp_dir to target_dir, handling both:
+        - Flat structure: sample directories at root level
+        - Nested structure: sample directories inside master folders
         """
-        sample_count = 0
+        direct_items = list(temp_dir.iterdir())
+        first_dir = next((item for item in direct_items if item.is_dir()), None)
 
-        # Look for directories that contain sample directories
-        for extracted_folder in temp_dir.iterdir():
-            if extracted_folder.is_dir():
-                # Move all subdirectories (samples) to target
-                for sample_dir in extracted_folder.iterdir():
-                    if sample_dir.is_dir():
-                        target_path = target_dir / sample_dir.name
-                        if target_path.exists():
-                            # Handle name conflicts (should not happen)
-                            counter = 1
-                            while (
-                                target_dir / f"{sample_dir.name}_{counter}"
-                            ).exists():
-                                counter += 1
-                            target_path = target_dir / f"{sample_dir.name}_{counter}"
+        if not first_dir:
+            print(f"  → No directories found in extracted content")
+            return
 
-                        shutil.move(str(sample_dir), str(target_path))
-                        sample_count += 1
+        # Determine structure and get all sample directories
+        if self._is_sample_directory(first_dir):
+            print(f"  → Detected flat structure (no master folder)")
+            sample_dirs = [item for item in direct_items if item.is_dir()]
+        else:
+            print(f"  → Detected nested structure (with master folder)")
+            sample_dirs = self._get_nested_samples(direct_items)
 
-        print(f"  → Moved {sample_count} samples to {target_dir}")
+        # Move all samples to target
+        moved_count = self._move_samples(sample_dirs, target_dir)
+        print(f"  → Moved {moved_count} samples to {target_dir}")
+
+    def _is_sample_directory(self, dir_path: Path) -> bool:
+        """Check if a directory is a sample (contains audio/ or face/ subdirs)."""
+        return (dir_path / "audio").is_dir() or (dir_path / "face").is_dir()
+
+    def _get_nested_samples(self, master_folders: List[Path]) -> List[Path]:
+        """Extract all sample directories from master folders."""
+        samples = []
+        for master in master_folders:
+            if master.is_dir():
+                samples.extend([item for item in master.iterdir() if item.is_dir()])
+        return samples
+
+    def _move_samples(self, sample_dirs: List[Path], target_dir: Path) -> int:
+        """Move sample directories to target, handling name conflicts."""
+        moved_count = 0
+        for sample in sample_dirs:
+            target_path = self._get_safe_target_path(sample.name, target_dir)
+            shutil.move(str(sample), str(target_path))
+            moved_count += 1
+        return moved_count
+
+    def _get_safe_target_path(self, name: str, target_dir: Path) -> Path:
+        """Get a safe target path, adding suffix if name already exists."""
+        target_path = target_dir / name
+        if not target_path.exists():
+            return target_path
+
+        counter = 1
+        while (target_dir / f"{name}_{counter}").exists():
+            counter += 1
+        return target_dir / f"{name}_{counter}"
+    #=================================================================================
+
 
     # TODO - Private asset - Remove this when not needed
 
