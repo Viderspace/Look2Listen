@@ -306,7 +306,7 @@ def _apply_power_law_compression(stft_complex: torch.Tensor) -> torch.Tensor:
 # ─────────────────────── Utility Functions ─────────────────────────
 
 
-def _normalize_audio(audio: torch.Tensor) -> torch.Tensor:
+def normalize_audio(audio: torch.Tensor) -> torch.Tensor:
     """Normalize audio to [-1, 1] range."""
     max_val = torch.max(torch.abs(audio))
     if max_val == 0:
@@ -420,6 +420,12 @@ def process_audio_for_inference(video_path: Path) -> List[torch.Tensor]:
     """
     # Extract and process audio for inference
     audio = extract_audio(video_path, mode="inference")
+    pre_norm = audio.abs().max()
+    audio = normalize_audio(audio)
+    post_norm = audio.abs().max()
+    print(
+        f" process_audio_for_inference - normalized: pre={pre_norm:.4f}, post={post_norm:.4f} (max amplitude)"
+    )
 
     # Compute STFT features
     features_stft = compute_stft_features(audio)

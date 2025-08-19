@@ -151,7 +151,7 @@ class PreStagingManager:
             shutil.rmtree(temp_extract_dir)
             tar_path.unlink(missing_ok=True)
 
-    #======== Flattening logic for extracted content ================ (Both flat and nested structures)
+    # ======== Flattening logic for extracted content ================ (Both flat and nested structures)
 
     def _flatten_extracted_content(self, temp_dir: Path, target_dir: Path) -> None:
         """
@@ -163,15 +163,15 @@ class PreStagingManager:
         first_dir = next((item for item in direct_items if item.is_dir()), None)
 
         if not first_dir:
-            print(f"  → No directories found in extracted content")
+            print("  → No directories found in extracted content")
             return
 
         # Determine structure and get all sample directories
         if self._is_sample_directory(first_dir):
-            print(f"  → Detected flat structure (no master folder)")
+            print("  → Detected flat structure (no master folder)")
             sample_dirs = [item for item in direct_items if item.is_dir()]
         else:
-            print(f"  → Detected nested structure (with master folder)")
+            print("  → Detected nested structure (with master folder)")
             sample_dirs = self._get_nested_samples(direct_items)
 
         # Move all samples to target
@@ -209,8 +209,8 @@ class PreStagingManager:
         while (target_dir / f"{name}_{counter}").exists():
             counter += 1
         return target_dir / f"{name}_{counter}"
-    #=================================================================================
 
+    # =================================================================================
 
     # TODO - Private asset - Remove this when not needed
 

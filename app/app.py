@@ -31,7 +31,7 @@ class AppState:
         self.face_hint_coords: Optional[tuple] = None
         # Use bundled checkpoint
         self.checkpoint_path = str(
-            Path(__file__).parent / "models" / "checkpoint_epoch_32.pt"
+            Path(__file__).parent / "models" / "checkpoint_epoch_23.pt"
         )
 
 
@@ -168,6 +168,15 @@ def handle_reduce_noise():
         original_audio_trimmed = trim_audio_to_video_length(
             original_audio, video_info["duration"]
         )
+        print(f"original peak : {original_audio_trimmed.abs().max()}, "
+              f"enhanced peak: {enhanced_audio_trimmed.abs().max()}")
+
+        from avspeech.utils.audio import normalize_audio
+        # Normalize audio to prevent clipping
+        enhanced_audio_trimmed = normalize_audio(enhanced_audio_trimmed, )
+        original_audio_trimmed = normalize_audio(original_audio_trimmed)
+        print(f"original peak : {original_audio_trimmed.abs().max()}, "
+              f"enhanced peak: {enhanced_audio_trimmed.abs().max()}")
 
         # Create output directory
         temp_dir = Path("temp")
@@ -187,6 +196,8 @@ def handle_reduce_noise():
         save_audio_video_combined(
             original_video_path, original_audio_trimmed, original_video_path_copy
         )
+
+
 
         return (
             str(enhanced_video_path),  # Return enhanced video instead of just audio
@@ -338,3 +349,16 @@ with gr.Blocks() as demo:
 
 if __name__ == "__main__":
     demo.launch()
+
+
+"""
+Epoch 24: loss=0.0905
+Running full validation...
+Validating 1s_noise with 71 batches...
+
+  Val 1s_noise: loss=0.0589
+Validating 2s_clean with 75 batches...
+  Val 2s_clean: loss=0.1005
+Validating 2s_noise with 73 batches...
+  Val 2s_noise: loss=0.1021
+  """

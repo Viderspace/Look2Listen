@@ -212,7 +212,7 @@ def main():
 
     noise_mixer = NoiseMixer.from_audio_dirs(
         speech_root=new_speech_root,
-        # noise_root=new_noise_root,
+        noise_root=new_noise_root,
         set_type=SampleT.S2_CLEAN,
     )
 

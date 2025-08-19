@@ -23,7 +23,7 @@ class TrainingPhase:
     num_epochs: int
     learning_rate: float
     min_lr: float
-    batch_size: int = 32
+    batch_size: int = 8
     gradient_clip: float = 1.0
     save_interval: int = 1
     val_interval: int = 1
@@ -38,9 +38,9 @@ class TrainingPhase:
                 SampleT.S2_CLEAN: 0.475,
                 SampleT.S2_NOISE: 0.475,
             },
-            num_epochs=3,
-            learning_rate=1e-4,
-            min_lr=7e-5,
+            num_epochs=4,
+            learning_rate=6e-5,
+            min_lr=3e-5,
             resume_checkpoint=checkpoint_path,
         )
 
@@ -50,13 +50,13 @@ class TrainingPhase:
             name=PhaseName.MAIN,
             # probabilities={SampleT.S1_NOISE: 0.10, SampleT.S2_CLEAN: 0.45, SampleT.S2_NOISE: 0.45},
             probabilities={
-                SampleT.S1_NOISE: 0.15,
-                SampleT.S2_CLEAN: 0.425,
-                SampleT.S2_NOISE: 0.425,
+                SampleT.S1_NOISE: 0.08,
+                SampleT.S2_CLEAN: 0.46,
+                SampleT.S2_NOISE: 0.46,
             },
-            num_epochs=15,
-            learning_rate=4e-5,
-            min_lr=5e-6,
+            num_epochs=8,
+            learning_rate=3e-5,
+            min_lr=8e-6,
             resume_checkpoint=checkpoint_path,
         )
 

@@ -51,7 +51,6 @@ class Trainer:
         )
 
     def _setup_scheduler(self) -> LRScheduler:
-        #TODO - DEBUG VERSION REMOVE
         """Create cosine annealing LR scheduler"""
         steps_per_epoch = len(self.data_loader.sampler)
         print(f"{(steps_per_epoch == len(self.data_loader.get_train_loader())) =} equal?")
@@ -68,19 +67,21 @@ class Trainer:
         )
 
     def _load_checkpoint(self, checkpoint_path: str) -> None:
-        """Load checkpoint and restore model/optimizer states"""
+        """Load ONLY model weights from checkpoint"""
         checkpoint = torch.load(checkpoint_path, map_location=self.device)
-
+        
+        # Load ONLY the model weights
         self.model.load_state_dict(checkpoint['model_state_dict'])
-        self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-
-        if 'scheduler_state_dict' in checkpoint:
-            self.scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
-
+        
+        # Set starting epoch based on checkpoint
         self.start_epoch = checkpoint['epoch'] + 1
-        self.global_step = checkpoint.get('global_step', 0)
+        
+        # Fresh start for global_step (optional - could keep counting)
+        self.global_step = 0
+        
+        print(f"Loaded model weights from epoch {checkpoint['epoch']}")
+        print(f"Starting fresh training from epoch {self.start_epoch}")
 
-        print(f"Resumed from epoch {checkpoint['epoch']}")
 
     def _save_checkpoint(self, epoch: int, metrics: Dict[str, float]) -> None:
         """Save model, optimizer, and training state"""
@@ -157,7 +158,7 @@ class Trainer:
             #=========================================
 
             # optional: light sample print (tune the interval to your device)
-            if (self.global_step % 10) == 0:
+            if (self.global_step % 400) == 0:
                 print(f"[mix/batch] 1S={n1} 2SC={n2c} 2SN={n2n}")
 
             _batch_mix_stats.append((n1, n2c, n2n))
