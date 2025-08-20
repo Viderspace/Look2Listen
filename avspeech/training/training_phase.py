@@ -61,6 +61,21 @@ class TrainingPhase:
         )
 
     @classmethod
+    def e_25_resume(cls, e25_checkpoint_path: Optional[str] = None) -> "TrainingPhase":
+        return cls(
+            name=PhaseName.MAIN,
+            probabilities={
+                SampleT.S1_NOISE: 0.08,
+                SampleT.S2_CLEAN: 0.46,
+                SampleT.S2_NOISE: 0.46,
+            },
+            num_epochs=6,
+            learning_rate=2e-5,
+            min_lr=5e-6,
+            resume_checkpoint=e25_checkpoint_path,
+        )
+
+    @classmethod
     def polish(cls, checkpoint_path: Optional[str] = None) -> "TrainingPhase":
         return cls(
             name=PhaseName.POLISH,

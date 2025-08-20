@@ -3,6 +3,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+def init_weights(m):
+    if isinstance(m, (nn.Conv1d, nn.Conv2d, nn.Linear)):
+        nn.init.kaiming_normal_(m.weight, nonlinearity='relu')
+        if m.bias is not None:
+            nn.init.zeros_(m.bias)
 
 class VisualDilatedCNN(nn.Module):
 
@@ -40,6 +45,9 @@ class VisualDilatedCNN(nn.Module):
             self.conv_layers.append(conv)
             self.batch_norms.append(nn.BatchNorm1d(out_channels))
             in_channels = out_channels
+
+        # Apply He init to temporal conv stack
+        self.apply(init_weights)
 
     def forward(self, x):
         """
@@ -79,11 +87,7 @@ def upsample_visual_features(visual_features, target_length=298):
     """
     # Better version - no unnecessary unpacking
     visual_features = visual_features.unsqueeze(-1)
-    upsampled = F.interpolate(
-        visual_features,
-        size=(target_length, 1),
-        mode='nearest'
-    )
+    upsampled = F.interpolate(visual_features, size=(target_length, 1), mode='nearest')
     return upsampled.squeeze(-1)
 
 

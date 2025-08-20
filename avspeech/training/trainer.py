@@ -6,7 +6,7 @@ import torch.nn as nn
 from tqdm import tqdm
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler, CosineAnnealingLR
-from torch.utils.tensorboard import SummaryWriter
+# from torch.utils.tensorboard import SummaryWriter
 from avspeech.training.training_phase import TrainingPhase, PhaseName
 from avspeech.training.dataloader import MixedDataLoader
 from avspeech.training.loss import ComplexCompressedLoss
@@ -35,7 +35,7 @@ class Trainer:
         self.criterion = ComplexCompressedLoss()
         self.optimizer = self._setup_optimizer()
         self.scheduler = self._setup_scheduler()
-        self.writer = SummaryWriter(str(log_dir))
+        # self.writer = SummaryWriter(str(log_dir))
 
         self.start_epoch = 1
         self.global_step = 0
@@ -158,7 +158,7 @@ class Trainer:
             #=========================================
 
             # optional: light sample print (tune the interval to your device)
-            if (self.global_step % 400) == 0:
+            if (self.global_step % 1) == 0:
                 print(f"[mix/batch] 1S={n1} 2SC={n2c} 2SN={n2n}")
 
             _batch_mix_stats.append((n1, n2c, n2n))
@@ -233,7 +233,7 @@ class Trainer:
             if epoch % self.phase.save_interval == 0:  # usually every epoch
                 self._save_checkpoint(epoch, train_metrics)
 
-        self.writer.close()
+        # self.writer.close()
         print(f"Training complete")
 
     def run_full_validation(self, epoch : int) -> None:
@@ -278,5 +278,6 @@ class Trainer:
 
     def _log_metrics(self, metrics: Dict[str, float], step: int) -> None:
         """Write metrics to tensorboard"""
-        for key, value in metrics.items():
-            self.writer.add_scalar(key, value, step)
+        pass
+        # for key, value in metrics.items():
+        #     self.writer.add_scalar(key, value, step)

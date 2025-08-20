@@ -10,6 +10,14 @@ def _calculate_same_padding(kernel_size, dilation):
     return (pad_h, pad_w)
 
 
+def init_weights(m):
+    if isinstance(m, (nn.Conv1d, nn.Conv2d, nn.Linear)):
+        nn.init.kaiming_normal_(m.weight, nonlinearity='relu')
+        if m.bias is not None:
+            nn.init.zeros_(m.bias)
+
+
+
 class AudioDilatedCNN(nn.Module):
 
     def __init__(self):
@@ -66,11 +74,18 @@ class AudioDilatedCNN(nn.Module):
 
             self.conv_layers.append(conv)
 
-            # Batch normalization for all layers except the last
+            # Batch normalization
             if i < len(layer_specs) - 1:
                 self.batch_norms.append(nn.BatchNorm2d(out_channels))
 
             in_channels = out_channels
+
+        # Final BatchNorm for the last conv (Conv15) to match original TF tail
+        self.final_bn = nn.BatchNorm2d(layer_specs[-1][0])  # out_channels of last layer (8)
+
+        # Apply He init to conv layers (ReLU activations throughout)
+        self.apply(init_weights)
+
 
 
     def forward(self, x):
@@ -90,8 +105,10 @@ class AudioDilatedCNN(nn.Module):
             x = bn(x)
             x = F.relu(x)
 
-        # Last layer (no batch norm or activation)
+        # Last layer + BatchNorm + ReLU (to match original TF implementation)
         x = self.conv_layers[-1](x)
+        x = self.final_bn(x)
+        x = F.relu(x)
 
         return x
 

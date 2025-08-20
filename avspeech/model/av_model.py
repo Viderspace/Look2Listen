@@ -7,6 +7,24 @@ from avspeech.model.audio_model import AudioDilatedCNN
 from avspeech.model.visual_model import VisualDilatedCNN, upsample_visual_features
 
 
+def init_weights(m):
+    # He for ReLU layers; Xavier for the final linear head
+    if isinstance(m, (nn.Conv1d, nn.Conv2d, nn.Linear)):
+        if isinstance(m, nn.Linear) and getattr(m, "_is_output_head", False):
+            nn.init.xavier_uniform_(m.weight)
+            if m.bias is not None:
+                nn.init.zeros_(m.bias)
+        else:
+            nn.init.kaiming_normal_(m.weight, nonlinearity='relu')
+            if m.bias is not None:
+                nn.init.zeros_(m.bias)
+    elif isinstance(m, nn.LSTM):
+        # Optional: set forget-gate bias = 1 for stability
+        for name, p in m.named_parameters():
+            if 'bias' in name:
+                hidden = m.hidden_size
+                p.data[hidden:2*hidden].fill_(1.0)
+
 class AudioVisualModel(nn.Module):
 
     def __init__(self, audio_channels=2, video_embed_dim=512):
@@ -36,17 +54,20 @@ class AudioVisualModel(nn.Module):
                 batch_first=True,
                 bidirectional=True
         )
-        # BiLSTM output will be 400*2 = 800 dimensions
 
-        # Three FC layers
-        self.fc1 = nn.Linear(800, 600)
+        # BiLSTM output will be 400*2 = 800 dimensions  # Sum-merged to 400-D in forward()
+
+        # Three FC layers + output (added third hidden; removed FC BN; keep linear output)
+        self.fc1 = nn.Linear(400, 600)  # input dim changed due to sum-merge
         self.fc2 = nn.Linear(600, 600)
-        self.fc3 = nn.Linear(600, 257 * 2)  # 257 freq × 2 (real/imag)
+        self.fc3 = nn.Linear(600, 600)  # added hidden layer to match original 3×600
+        self.fc4 = nn.Linear(600, 257 * 2)  # 257 freq × 2 (real/imag) – output layer (linear)
 
-        # Batch normalization for FC layers (except the last)
-        self.bn1 = nn.BatchNorm1d(600)
-        self.bn2 = nn.BatchNorm1d(600)
+        # Mark final head for Xavier init
+        self.fc4._is_output_head = True
 
+        # Apply initializers (He for ReLU stacks; Xavier for head; LSTM forget-bias tweak)
+        self.apply(init_weights)
 
     def forward(self, audio_input, visual_input):
         """
@@ -76,22 +97,48 @@ class AudioVisualModel(nn.Module):
         # BiLSTM processing
         lstm_out, _ = self.blstm(fused_features)  # [batch, 298, 800]
 
+        # # FC layers
+        # # Reshape for batch norm: [batch, 298, 800] -> [batch*298, 800]
+        # fc_input = lstm_out.reshape(-1, 800)
+        #
+        # # FC1
+        # fc1_out = self.fc1(fc_input)  # [batch*298, 600]
+        # fc1_out = self.bn1(fc1_out)
+        # fc1_out = F.relu(fc1_out)
+        #
+        # # FC2
+        # fc2_out = self.fc2(fc1_out)  # [batch*298, 600]
+        # fc2_out = self.bn2(fc2_out)
+        # fc2_out = F.relu(fc2_out)
+        #
+        # # FC3 (no batch norm or activation)
+        # fc3_out = self.fc3(fc2_out)  # [batch*298, 514]
+
         # FC layers
-        # Reshape for batch norm: [batch, 298, 800] -> [batch*298, 800]
-        fc_input = lstm_out.reshape(-1, 800)
+        # Reshape for FC stack (BN removed): [batch, 298, 400] -> [batch*298, 400]
+        # Sum-merge bidirectional outputs to match TF (merge_mode='sum')
+        fwd, bwd = torch.chunk(lstm_out, 2, dim=2)
+        lstm_out = fwd + bwd  # [batch, 298, 400]
+
+        # Reshape for FC stack: [batch, 298, 400] -> [batch*298, 400]
+        fc_input = lstm_out.reshape(-1, 400)
 
         # FC1
         fc1_out = self.fc1(fc_input)  # [batch*298, 600]
-        fc1_out = self.bn1(fc1_out)
         fc1_out = F.relu(fc1_out)
 
         # FC2
         fc2_out = self.fc2(fc1_out)  # [batch*298, 600]
-        fc2_out = self.bn2(fc2_out)
         fc2_out = F.relu(fc2_out)
 
-        # FC3 (no batch norm or activation)
-        fc3_out = self.fc3(fc2_out)  # [batch*298, 514]
+        # FC3 (added third hidden layer, no BatchNorm)
+        fc3_out = self.fc3(fc2_out)  # [batch*298, 600]
+        fc3_out = F.relu(fc3_out)
+
+        # Output layer (linear mask; no activation)
+        fc3_out = self.fc4(fc3_out)  # [batch*298, 514]
+
+
 
         # Reshape back to [batch, 298, 257, 2]
         output = fc3_out.reshape(batch_size, 298, 257, 2)
@@ -99,9 +146,7 @@ class AudioVisualModel(nn.Module):
         # Transpose to match input format [batch, 257, 298, 2]
         output = output.permute(0, 2, 1, 3)
 
-        # Apply sigmoid to bound mask values between 0 and 1
-        masks = torch.sigmoid(output)
+        return output
 
-        return masks  # Raw mask values for now
 
 

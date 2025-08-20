@@ -103,12 +103,12 @@ class SampleMixer:
             self.available_indices[st] = indices[:samples_needed]
             self.index_positions[st] = 0
 
-    def _get_batch_composition(self, batch_idx, total_batches):
+    def _get_batch_composition(self, batch_idx, total_batches, end_calibration=False):
         batch_counts = self.base_counts.copy()
 
         if self.slots_to_fill > 0:
             # For last ~10% of batches, correct the drift
-            if batch_idx > total_batches * 0.9:
+            if batch_idx > total_batches * 0.9 and end_calibration:
                 # Calculate deficit for each type
                 deficits = {st: self.target_counts[st] - self.actual_counts[st]
                             for st in self.sample_types}
@@ -128,6 +128,7 @@ class SampleMixer:
         # Update counters
         for st, count in batch_counts.items():
             self.actual_counts[st] += count
+
 
         return batch_counts
 
@@ -174,6 +175,8 @@ class SampleMixer:
         for batch_idx in range(self.batches_per_epoch):
             composition = self._get_batch_composition(batch_idx, self.batches_per_epoch)
             indices = self._get_batch_indices(composition)
+            assert len(indices) == self.batch_size, "Batch size mismatch"
+
             yield indices
 
     def __len__(self):

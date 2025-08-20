@@ -31,7 +31,7 @@ class AppState:
         self.face_hint_coords: Optional[tuple] = None
         # Use bundled checkpoint
         self.checkpoint_path = str(
-            Path(__file__).parent / "models" / "checkpoint_epoch_23.pt"
+            Path(__file__).parent / "models" / "checkpoint_epoch_26.pt"
         )
 
 

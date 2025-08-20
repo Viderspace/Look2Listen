@@ -171,7 +171,7 @@ class ClipProcessor:
         self.face_crops = face_embedder.crop_faces(
             self.video_frames, hint_pos[0], hint_pos[1]
         )
-        save_debug_collage(Path("./debug"), self.face_crops)
+        save_debug_collage(Path(f"./debug/collage_{self.video_path.name}_{hint_pos}"), self.face_crops)
 
         self.face_embeddings = face_embedder.compute_embeddings(self.face_crops)
 
