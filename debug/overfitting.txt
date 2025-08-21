@@ -1,0 +1,1847 @@
+/Users/jonatanvider/miniconda3/envs/avspeech/bin/python /Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/avspeech/training/overfitting_test.py
+✓ Phase configured: PhaseName.MAIN
+✓ Batch size: 2
+  Epochs: 100
+  LR: 6e-05 -> 3e-05
+  Mix: {<SampleT.S1_NOISE: '1s_noise'>: 0.0, <SampleT.S2_CLEAN: '2s_clean'>: 0.0, <SampleT.S2_NOISE: '2s_noise'>: 1.0}
+Detected 16 samples in /Users/jonatanvider/Desktop/Look2Listen_Stuff/overfitting_samples
+data_loader.sampler.dataset_sizes={<SampleT.S2_NOISE: '2s_noise'>: 16}
+len(data_loader.train_dataset)=16
+✓ DataLoader created
+  Batches per epoch: 8
+✓ Model created
+(steps_per_epoch == len(self.data_loader.get_train_loader())) =True equal?
+[sched] steps/epoch=8, total_steps=800, lr_start=6.00e-05, lr_min=3.00e-05
+✓ Trainer initialized
+
+==================================================
+STARTING TRAINING
+==================================================
+Starting PhaseName.MAIN phase: 100 epochs
+Epoch 1:   0%|          | 0/8 [00:00<?, ?it/s]/Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/avspeech/training/datasets.py:51: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  mixture_audio = torch.load(sample_dir / 'audio' / 'mixture_embs.pt')
+/Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/avspeech/training/datasets.py:52: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  clean_audio = torch.load(sample_dir / 'audio' / 'clean_embs.pt')
+/Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/avspeech/training/datasets.py:53: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  face_embs = torch.load(sample_dir / 'face' / 'face_embs.pt')
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 1:  12%|█▎        | 1/8 [00:01<00:07,  1.05s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 1:  25%|██▌       | 2/8 [00:01<00:05,  1.11it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 1:  50%|█████     | 4/8 [00:03<00:03,  1.20it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 1:  62%|██████▎   | 5/8 [00:04<00:02,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 1:  75%|███████▌  | 6/8 [00:05<00:01,  1.23it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 1:  88%|████████▊ | 7/8 [00:05<00:00,  1.24it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 1: 100%|██████████| 8/8 [00:06<00:00,  1.20it/s]
+Epoch 2:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 1: loss=0.2120
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 2:  25%|██▌       | 2/8 [00:01<00:04,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 2:  38%|███▊      | 3/8 [00:02<00:04,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 2:  50%|█████     | 4/8 [00:03<00:03,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 2:  62%|██████▎   | 5/8 [00:04<00:02,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 2:  88%|████████▊ | 7/8 [00:05<00:00,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 2: 100%|██████████| 8/8 [00:06<00:00,  1.25it/s]
+Epoch 3:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 2: loss=0.1546
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 3:  12%|█▎        | 1/8 [00:00<00:05,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 3:  38%|███▊      | 3/8 [00:02<00:04,  1.24it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 3:  50%|█████     | 4/8 [00:03<00:03,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 3:  62%|██████▎   | 5/8 [00:04<00:02,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 3:  75%|███████▌  | 6/8 [00:04<00:01,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 3:  88%|████████▊ | 7/8 [00:05<00:00,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 3: loss=0.1365
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 3: 100%|██████████| 8/8 [00:06<00:00,  1.25it/s]
+Epoch 4:  12%|█▎        | 1/8 [00:00<00:05,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 4:  38%|███▊      | 3/8 [00:02<00:04,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 4:  50%|█████     | 4/8 [00:03<00:03,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 4:  62%|██████▎   | 5/8 [00:04<00:02,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 4:  75%|███████▌  | 6/8 [00:04<00:01,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 4: 100%|██████████| 8/8 [00:06<00:00,  1.25it/s]
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 4: loss=0.1246
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 5:  12%|█▎        | 1/8 [00:00<00:05,  1.24it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 5:  25%|██▌       | 2/8 [00:01<00:04,  1.23it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 5:  38%|███▊      | 3/8 [00:02<00:04,  1.24it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 5:  50%|█████     | 4/8 [00:03<00:03,  1.24it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 5:  62%|██████▎   | 5/8 [00:04<00:02,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 5:  75%|███████▌  | 6/8 [00:04<00:01,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 5:  88%|████████▊ | 7/8 [00:05<00:00,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 5: 100%|██████████| 8/8 [00:06<00:00,  1.25it/s]
+Epoch 6:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 5: loss=0.1155
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 6:  12%|█▎        | 1/8 [00:00<00:05,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 6:  25%|██▌       | 2/8 [00:01<00:04,  1.24it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 6:  50%|█████     | 4/8 [00:03<00:03,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 6:  75%|███████▌  | 6/8 [00:04<00:01,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 6:  88%|████████▊ | 7/8 [00:05<00:00,  1.25it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 6: 100%|██████████| 8/8 [00:06<00:00,  1.25it/s]
+Epoch 7:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 6: loss=0.1073
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 7:  12%|█▎        | 1/8 [00:00<00:05,  1.24it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 7:  25%|██▌       | 2/8 [00:01<00:04,  1.24it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 7:  38%|███▊      | 3/8 [00:02<00:04,  1.24it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 7:  50%|█████     | 4/8 [00:03<00:03,  1.24it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 7:  75%|███████▌  | 6/8 [00:04<00:01,  1.24it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 7:  88%|████████▊ | 7/8 [00:05<00:00,  1.23it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 7: loss=0.1005
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 7: 100%|██████████| 8/8 [00:06<00:00,  1.23it/s]
+Epoch 8:  12%|█▎        | 1/8 [00:00<00:05,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 8:  25%|██▌       | 2/8 [00:01<00:04,  1.21it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 8:  38%|███▊      | 3/8 [00:02<00:04,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 8:  50%|█████     | 4/8 [00:03<00:03,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 8:  62%|██████▎   | 5/8 [00:04<00:02,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 8:  75%|███████▌  | 6/8 [00:04<00:01,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 8:  88%|████████▊ | 7/8 [00:05<00:00,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 8: 100%|██████████| 8/8 [00:06<00:00,  1.22it/s]
+Epoch 9:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 8: loss=0.0946
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 9:  12%|█▎        | 1/8 [00:00<00:05,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 9:  25%|██▌       | 2/8 [00:01<00:04,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 9:  38%|███▊      | 3/8 [00:02<00:04,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 9:  50%|█████     | 4/8 [00:03<00:03,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 9:  75%|███████▌  | 6/8 [00:04<00:01,  1.21it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 9:  88%|████████▊ | 7/8 [00:05<00:00,  1.21it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 9: 100%|██████████| 8/8 [00:06<00:00,  1.21it/s]
+Epoch 10:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 9: loss=0.0888
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 10:  25%|██▌       | 2/8 [00:01<00:04,  1.21it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 10:  38%|███▊      | 3/8 [00:02<00:04,  1.21it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 10:  50%|█████     | 4/8 [00:03<00:03,  1.21it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 10:  62%|██████▎   | 5/8 [00:04<00:02,  1.21it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 10:  75%|███████▌  | 6/8 [00:04<00:01,  1.21it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 10:  88%|████████▊ | 7/8 [00:05<00:00,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 10: loss=0.0859
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 10: 100%|██████████| 8/8 [00:06<00:00,  1.22it/s]
+Epoch 11:  12%|█▎        | 1/8 [00:00<00:05,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 11:  38%|███▊      | 3/8 [00:02<00:04,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 11:  50%|█████     | 4/8 [00:03<00:03,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 11:  75%|███████▌  | 6/8 [00:04<00:01,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 11: 100%|██████████| 8/8 [00:06<00:00,  1.22it/s]
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 11: loss=0.0819
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 12:  12%|█▎        | 1/8 [00:00<00:05,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 12:  25%|██▌       | 2/8 [00:01<00:04,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 12:  38%|███▊      | 3/8 [00:02<00:04,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 12:  50%|█████     | 4/8 [00:03<00:03,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 12:  62%|██████▎   | 5/8 [00:04<00:02,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 12:  88%|████████▊ | 7/8 [00:05<00:00,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 12: 100%|██████████| 8/8 [00:06<00:00,  1.22it/s]
+Epoch 13:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 12: loss=0.0798
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 13:  25%|██▌       | 2/8 [00:01<00:04,  1.23it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 13:  38%|███▊      | 3/8 [00:02<00:04,  1.23it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 13:  62%|██████▎   | 5/8 [00:04<00:02,  1.23it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 13:  75%|███████▌  | 6/8 [00:04<00:01,  1.23it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 13:  88%|████████▊ | 7/8 [00:05<00:00,  1.23it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 13: loss=0.0780
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 13: 100%|██████████| 8/8 [00:06<00:00,  1.22it/s]
+Epoch 14:  12%|█▎        | 1/8 [00:00<00:05,  1.23it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 14:  25%|██▌       | 2/8 [00:01<00:04,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 14:  38%|███▊      | 3/8 [00:02<00:04,  1.23it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 14:  50%|█████     | 4/8 [00:03<00:03,  1.23it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 14:  62%|██████▎   | 5/8 [00:04<00:02,  1.23it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 14:  88%|████████▊ | 7/8 [00:05<00:00,  1.23it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 14: 100%|██████████| 8/8 [00:06<00:00,  1.23it/s]
+Epoch 15:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 14: loss=0.0777
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 15:  12%|█▎        | 1/8 [00:00<00:05,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 15:  25%|██▌       | 2/8 [00:01<00:04,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 15:  50%|█████     | 4/8 [00:03<00:03,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 15:  62%|██████▎   | 5/8 [00:04<00:02,  1.22it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 15:  75%|███████▌  | 6/8 [00:04<00:01,  1.23it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 15: 100%|██████████| 8/8 [00:06<00:00,  1.22it/s]
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 15: loss=0.0747
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 16:  12%|█▎        | 1/8 [00:00<00:05,  1.24it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 16:  25%|██▌       | 2/8 [00:01<00:04,  1.24it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 16:  38%|███▊      | 3/8 [00:02<00:04,  1.23it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 16:  50%|█████     | 4/8 [00:03<00:03,  1.23it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 16:  62%|██████▎   | 5/8 [00:04<00:02,  1.20it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 16:  75%|███████▌  | 6/8 [00:05<00:01,  1.17it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 16: 100%|██████████| 8/8 [00:06<00:00,  1.18it/s]
+Epoch 17:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 16: loss=0.0742
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 17:  12%|█▎        | 1/8 [00:00<00:06,  1.15it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 17:  25%|██▌       | 2/8 [00:01<00:05,  1.18it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 17:  50%|█████     | 4/8 [00:03<00:03,  1.21it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 17:  62%|██████▎   | 5/8 [00:04<00:02,  1.21it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 17:  75%|███████▌  | 6/8 [00:04<00:01,  1.21it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 17: 100%|██████████| 8/8 [00:06<00:00,  1.20it/s]
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 17: loss=0.0735
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 18:  12%|█▎        | 1/8 [00:00<00:06,  1.14it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 18:  25%|██▌       | 2/8 [00:01<00:05,  1.14it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 18:  38%|███▊      | 3/8 [00:02<00:04,  1.14it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 18:  50%|█████     | 4/8 [00:03<00:03,  1.15it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 18:  75%|███████▌  | 6/8 [00:05<00:01,  1.16it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 18: 100%|██████████| 8/8 [00:06<00:00,  1.16it/s]
+Epoch 19:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 18: loss=0.0724
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 19:  12%|█▎        | 1/8 [00:00<00:06,  1.13it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 19:  25%|██▌       | 2/8 [00:01<00:05,  1.13it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 19:  38%|███▊      | 3/8 [00:02<00:04,  1.13it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 19:  50%|█████     | 4/8 [00:03<00:03,  1.13it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 19:  62%|██████▎   | 5/8 [00:04<00:02,  1.13it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 19:  75%|███████▌  | 6/8 [00:05<00:01,  1.13it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 19:  88%|████████▊ | 7/8 [00:06<00:00,  1.13it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 19: 100%|██████████| 8/8 [00:07<00:00,  1.13it/s]
+Epoch 20:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 19: loss=0.0712
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 20:  12%|█▎        | 1/8 [00:00<00:06,  1.12it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 20:  25%|██▌       | 2/8 [00:01<00:05,  1.12it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 20:  38%|███▊      | 3/8 [00:02<00:04,  1.11it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 20:  50%|█████     | 4/8 [00:03<00:03,  1.11it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 20:  62%|██████▎   | 5/8 [00:04<00:02,  1.11it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 20:  75%|███████▌  | 6/8 [00:05<00:01,  1.10it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 20:  88%|████████▊ | 7/8 [00:06<00:00,  1.10it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 20: 100%|██████████| 8/8 [00:07<00:00,  1.11it/s]
+Epoch 21:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 20: loss=0.0704
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 21:  25%|██▌       | 2/8 [00:01<00:05,  1.09it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 21:  38%|███▊      | 3/8 [00:02<00:04,  1.09it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 21:  50%|█████     | 4/8 [00:03<00:03,  1.08it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 21:  62%|██████▎   | 5/8 [00:04<00:02,  1.07it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 21:  75%|███████▌  | 6/8 [00:05<00:01,  1.07it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 21:  88%|████████▊ | 7/8 [00:06<00:00,  1.06it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 21: 100%|██████████| 8/8 [00:07<00:00,  1.07it/s]
+Epoch 22:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 21: loss=0.0707
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 22:  12%|█▎        | 1/8 [00:00<00:06,  1.04it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 22:  25%|██▌       | 2/8 [00:01<00:05,  1.05it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 22:  38%|███▊      | 3/8 [00:02<00:04,  1.05it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 22:  50%|█████     | 4/8 [00:03<00:03,  1.05it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 22:  75%|███████▌  | 6/8 [00:05<00:01,  1.06it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 22: 100%|██████████| 8/8 [00:07<00:00,  1.05it/s]
+Epoch 23:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 22: loss=0.0698
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 23:  25%|██▌       | 2/8 [00:01<00:05,  1.02it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 23:  38%|███▊      | 3/8 [00:02<00:04,  1.02it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 23:  62%|██████▎   | 5/8 [00:04<00:02,  1.03it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 23:  75%|███████▌  | 6/8 [00:05<00:01,  1.04it/s][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 23: 100%|██████████| 8/8 [00:07<00:00,  1.03it/s]
+Epoch 24:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 23: loss=0.0691
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 24:  12%|█▎        | 1/8 [00:01<00:07,  1.02s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 24:  25%|██▌       | 2/8 [00:02<00:06,  1.04s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 24:  38%|███▊      | 3/8 [00:03<00:05,  1.05s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 24:  50%|█████     | 4/8 [00:04<00:04,  1.04s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 24:  62%|██████▎   | 5/8 [00:05<00:03,  1.02s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 24:  88%|████████▊ | 7/8 [00:07<00:01,  1.00s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 24: loss=0.0680
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 24: 100%|██████████| 8/8 [00:08<00:00,  1.02s/it]
+Epoch 25:  12%|█▎        | 1/8 [00:01<00:07,  1.05s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 25:  25%|██▌       | 2/8 [00:02<00:06,  1.04s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 25:  38%|███▊      | 3/8 [00:03<00:05,  1.04s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 25:  50%|█████     | 4/8 [00:04<00:04,  1.03s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 25:  62%|██████▎   | 5/8 [00:05<00:03,  1.03s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 25:  75%|███████▌  | 6/8 [00:06<00:02,  1.03s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 25:  88%|████████▊ | 7/8 [00:07<00:01,  1.03s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 25: loss=0.0678
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 25: 100%|██████████| 8/8 [00:08<00:00,  1.04s/it]
+Epoch 26:  12%|█▎        | 1/8 [00:01<00:07,  1.07s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 26:  25%|██▌       | 2/8 [00:02<00:06,  1.06s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 26:  38%|███▊      | 3/8 [00:03<00:05,  1.06s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 26:  62%|██████▎   | 5/8 [00:05<00:03,  1.06s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 26:  88%|████████▊ | 7/8 [00:07<00:01,  1.07s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 26: loss=0.0678
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 26: 100%|██████████| 8/8 [00:08<00:00,  1.07s/it]
+Epoch 27:  12%|█▎        | 1/8 [00:01<00:07,  1.09s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 27:  25%|██▌       | 2/8 [00:02<00:06,  1.10s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 27:  38%|███▊      | 3/8 [00:03<00:05,  1.10s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 27:  50%|█████     | 4/8 [00:04<00:04,  1.10s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 27:  62%|██████▎   | 5/8 [00:05<00:03,  1.10s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 27:  75%|███████▌  | 6/8 [00:06<00:02,  1.10s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 27: 100%|██████████| 8/8 [00:08<00:00,  1.12s/it]
+Epoch 28:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 27: loss=0.0670
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 28:  25%|██▌       | 2/8 [00:02<00:07,  1.20s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 28:  38%|███▊      | 3/8 [00:03<00:05,  1.19s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 28:  50%|█████     | 4/8 [00:04<00:04,  1.18s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 28:  62%|██████▎   | 5/8 [00:05<00:03,  1.17s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 28:  88%|████████▊ | 7/8 [00:08<00:01,  1.14s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 28: 100%|██████████| 8/8 [00:09<00:00,  1.16s/it]
+Epoch 29:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 28: loss=0.0668
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 29:  25%|██▌       | 2/8 [00:02<00:06,  1.16s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 29:  38%|███▊      | 3/8 [00:03<00:05,  1.16s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 29:  62%|██████▎   | 5/8 [00:05<00:03,  1.15s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 29:  88%|████████▊ | 7/8 [00:08<00:01,  1.16s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 29: loss=0.0658
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 29: 100%|██████████| 8/8 [00:09<00:00,  1.16s/it]
+Epoch 30:  12%|█▎        | 1/8 [00:01<00:09,  1.29s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 30:  38%|███▊      | 3/8 [00:03<00:06,  1.31s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 30:  50%|█████     | 4/8 [00:05<00:05,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 30:  62%|██████▎   | 5/8 [00:06<00:03,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 30:  75%|███████▌  | 6/8 [00:07<00:02,  1.22s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 30:  88%|████████▊ | 7/8 [00:08<00:01,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 30: loss=0.0646
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 30: 100%|██████████| 8/8 [00:10<00:00,  1.26s/it]
+Epoch 31:  12%|█▎        | 1/8 [00:01<00:08,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 31:  25%|██▌       | 2/8 [00:02<00:07,  1.21s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 31:  38%|███▊      | 3/8 [00:03<00:05,  1.18s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 31:  50%|█████     | 4/8 [00:04<00:04,  1.18s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 31:  62%|██████▎   | 5/8 [00:05<00:03,  1.20s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 31:  88%|████████▊ | 7/8 [00:08<00:01,  1.21s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 31: 100%|██████████| 8/8 [00:09<00:00,  1.21s/it]
+Epoch 32:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 31: loss=0.0646
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 32:  12%|█▎        | 1/8 [00:01<00:08,  1.22s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 32:  25%|██▌       | 2/8 [00:02<00:07,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 32:  38%|███▊      | 3/8 [00:03<00:06,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 32:  50%|█████     | 4/8 [00:04<00:04,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 32:  75%|███████▌  | 6/8 [00:07<00:02,  1.22s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 32:  88%|████████▊ | 7/8 [00:08<00:01,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 32: loss=0.0637
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 32: 100%|██████████| 8/8 [00:09<00:00,  1.24s/it]
+Epoch 33:  12%|█▎        | 1/8 [00:01<00:08,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 33:  25%|██▌       | 2/8 [00:02<00:07,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 33:  38%|███▊      | 3/8 [00:03<00:06,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 33:  62%|██████▎   | 5/8 [00:06<00:03,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 33:  75%|███████▌  | 6/8 [00:07<00:02,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 33: 100%|██████████| 8/8 [00:10<00:00,  1.29s/it]
+Epoch 34:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 33: loss=0.0633
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 34:  12%|█▎        | 1/8 [00:01<00:09,  1.42s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 34:  25%|██▌       | 2/8 [00:02<00:08,  1.41s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 34:  38%|███▊      | 3/8 [00:04<00:07,  1.41s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 34:  50%|█████     | 4/8 [00:05<00:05,  1.38s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 34:  62%|██████▎   | 5/8 [00:06<00:04,  1.36s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 34:  75%|███████▌  | 6/8 [00:08<00:02,  1.35s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 34: 100%|██████████| 8/8 [00:11<00:00,  1.38s/it]
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 34: loss=0.0624
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 35:  12%|█▎        | 1/8 [00:01<00:10,  1.50s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 35:  25%|██▌       | 2/8 [00:02<00:08,  1.48s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 35:  38%|███▊      | 3/8 [00:04<00:07,  1.48s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 35:  50%|█████     | 4/8 [00:05<00:05,  1.46s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 35:  62%|██████▎   | 5/8 [00:07<00:04,  1.41s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 35:  75%|███████▌  | 6/8 [00:08<00:02,  1.36s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 35:  88%|████████▊ | 7/8 [00:09<00:01,  1.39s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 35: loss=0.0619
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 35: 100%|██████████| 8/8 [00:11<00:00,  1.43s/it]
+Epoch 36:  12%|█▎        | 1/8 [00:01<00:10,  1.51s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 36:  25%|██▌       | 2/8 [00:02<00:08,  1.40s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 36:  38%|███▊      | 3/8 [00:04<00:06,  1.36s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 36:  50%|█████     | 4/8 [00:05<00:05,  1.35s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 36:  62%|██████▎   | 5/8 [00:06<00:04,  1.35s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 36:  75%|███████▌  | 6/8 [00:08<00:02,  1.33s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 36:  88%|████████▊ | 7/8 [00:09<00:01,  1.31s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 36: loss=0.0615
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 36: 100%|██████████| 8/8 [00:10<00:00,  1.33s/it]
+Epoch 37:  12%|█▎        | 1/8 [00:01<00:09,  1.29s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 37:  25%|██▌       | 2/8 [00:02<00:07,  1.33s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 37:  38%|███▊      | 3/8 [00:04<00:06,  1.34s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 37:  50%|█████     | 4/8 [00:05<00:05,  1.32s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 37:  62%|██████▎   | 5/8 [00:06<00:03,  1.29s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 37:  75%|███████▌  | 6/8 [00:07<00:02,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 37:  88%|████████▊ | 7/8 [00:09<00:01,  1.30s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 37: 100%|██████████| 8/8 [00:10<00:00,  1.31s/it]
+Epoch 38:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 37: loss=0.0612
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 38:  25%|██▌       | 2/8 [00:02<00:07,  1.30s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 38:  38%|███▊      | 3/8 [00:03<00:06,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 38:  50%|█████     | 4/8 [00:05<00:05,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 38:  62%|██████▎   | 5/8 [00:06<00:03,  1.29s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 38:  75%|███████▌  | 6/8 [00:07<00:02,  1.29s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 38:  88%|████████▊ | 7/8 [00:09<00:01,  1.29s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 38: 100%|██████████| 8/8 [00:10<00:00,  1.29s/it]
+Epoch 39:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 38: loss=0.0605
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 39:  12%|█▎        | 1/8 [00:01<00:09,  1.31s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 39:  25%|██▌       | 2/8 [00:02<00:07,  1.32s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 39:  38%|███▊      | 3/8 [00:03<00:06,  1.31s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 39:  50%|█████     | 4/8 [00:05<00:05,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 39:  62%|██████▎   | 5/8 [00:06<00:03,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 39:  88%|████████▊ | 7/8 [00:09<00:01,  1.30s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 39: 100%|██████████| 8/8 [00:10<00:00,  1.30s/it]
+Epoch 40:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 39: loss=0.0600
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 40:  25%|██▌       | 2/8 [00:02<00:08,  1.34s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 40:  50%|█████     | 4/8 [00:05<00:05,  1.40s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 40:  62%|██████▎   | 5/8 [00:06<00:04,  1.34s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 40:  75%|███████▌  | 6/8 [00:08<00:02,  1.30s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 40: 100%|██████████| 8/8 [00:10<00:00,  1.33s/it]
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 40: loss=0.0601
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 41:  12%|█▎        | 1/8 [00:01<00:09,  1.31s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 41:  25%|██▌       | 2/8 [00:02<00:07,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 41:  38%|███▊      | 3/8 [00:03<00:06,  1.29s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 41:  50%|█████     | 4/8 [00:05<00:05,  1.35s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 41:  62%|██████▎   | 5/8 [00:06<00:04,  1.37s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 41:  75%|███████▌  | 6/8 [00:08<00:02,  1.37s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 41:  88%|████████▊ | 7/8 [00:09<00:01,  1.39s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 41: loss=0.0596
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 41: 100%|██████████| 8/8 [00:10<00:00,  1.37s/it]
+Epoch 42:  12%|█▎        | 1/8 [00:01<00:09,  1.38s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 42:  38%|███▊      | 3/8 [00:03<00:06,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 42:  50%|█████     | 4/8 [00:05<00:04,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 42:  62%|██████▎   | 5/8 [00:06<00:03,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 42:  88%|████████▊ | 7/8 [00:08<00:01,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 42: 100%|██████████| 8/8 [00:10<00:00,  1.27s/it]
+Epoch 43:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 42: loss=0.0594
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 43:  12%|█▎        | 1/8 [00:01<00:09,  1.30s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 43:  38%|███▊      | 3/8 [00:03<00:06,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 43:  50%|█████     | 4/8 [00:05<00:05,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 43:  62%|██████▎   | 5/8 [00:06<00:03,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 43:  75%|███████▌  | 6/8 [00:07<00:02,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 43:  88%|████████▊ | 7/8 [00:08<00:01,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 43: loss=0.0593
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 43: 100%|██████████| 8/8 [00:10<00:00,  1.27s/it]
+Epoch 44:  12%|█▎        | 1/8 [00:01<00:08,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 44:  25%|██▌       | 2/8 [00:02<00:07,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 44:  50%|█████     | 4/8 [00:05<00:05,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 44:  75%|███████▌  | 6/8 [00:07<00:02,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 44: 100%|██████████| 8/8 [00:10<00:00,  1.25s/it]
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 44: loss=0.0585
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 45:  12%|█▎        | 1/8 [00:01<00:08,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 45:  25%|██▌       | 2/8 [00:02<00:07,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 45:  38%|███▊      | 3/8 [00:03<00:06,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 45:  62%|██████▎   | 5/8 [00:06<00:03,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 45:  88%|████████▊ | 7/8 [00:08<00:01,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 45: loss=0.0586
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 45: 100%|██████████| 8/8 [00:10<00:00,  1.26s/it]
+Epoch 46:  12%|█▎        | 1/8 [00:01<00:08,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 46:  38%|███▊      | 3/8 [00:03<00:06,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 46:  62%|██████▎   | 5/8 [00:06<00:03,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 46:  75%|███████▌  | 6/8 [00:07<00:02,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 46:  88%|████████▊ | 7/8 [00:08<00:01,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 46: 100%|██████████| 8/8 [00:09<00:00,  1.24s/it]
+Epoch 47:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 46: loss=0.0578
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 47:  12%|█▎        | 1/8 [00:01<00:08,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 47:  25%|██▌       | 2/8 [00:02<00:07,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 47:  38%|███▊      | 3/8 [00:03<00:06,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 47:  50%|█████     | 4/8 [00:04<00:04,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 47:  62%|██████▎   | 5/8 [00:06<00:03,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 47:  88%|████████▊ | 7/8 [00:08<00:01,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 47: 100%|██████████| 8/8 [00:09<00:00,  1.24s/it]
+Epoch 48:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 47: loss=0.0583
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 48:  25%|██▌       | 2/8 [00:02<00:07,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 48:  38%|███▊      | 3/8 [00:03<00:06,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 48:  50%|█████     | 4/8 [00:05<00:05,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 48:  62%|██████▎   | 5/8 [00:06<00:03,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 48:  75%|███████▌  | 6/8 [00:07<00:02,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 48:  88%|████████▊ | 7/8 [00:08<00:01,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 48: loss=0.0572
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 48: 100%|██████████| 8/8 [00:09<00:00,  1.24s/it]
+Epoch 49:  12%|█▎        | 1/8 [00:01<00:08,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 49:  25%|██▌       | 2/8 [00:02<00:07,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 49:  38%|███▊      | 3/8 [00:03<00:06,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 49:  62%|██████▎   | 5/8 [00:06<00:03,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 49:  75%|███████▌  | 6/8 [00:07<00:02,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 49:  88%|████████▊ | 7/8 [00:08<00:01,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 49: loss=0.0572
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 49: 100%|██████████| 8/8 [00:09<00:00,  1.24s/it]
+Epoch 50:  12%|█▎        | 1/8 [00:01<00:08,  1.22s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 50:  25%|██▌       | 2/8 [00:02<00:07,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 50:  38%|███▊      | 3/8 [00:03<00:06,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 50:  62%|██████▎   | 5/8 [00:06<00:03,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 50:  88%|████████▊ | 7/8 [00:08<00:01,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 50: loss=0.0562
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 50: 100%|██████████| 8/8 [00:09<00:00,  1.23s/it]
+Epoch 51:  12%|█▎        | 1/8 [00:01<00:08,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 51:  38%|███▊      | 3/8 [00:03<00:06,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 51:  50%|█████     | 4/8 [00:04<00:04,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 51:  62%|██████▎   | 5/8 [00:06<00:03,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 51:  88%|████████▊ | 7/8 [00:08<00:01,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 51: loss=0.0561
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 51: 100%|██████████| 8/8 [00:09<00:00,  1.23s/it]
+Epoch 52:  12%|█▎        | 1/8 [00:01<00:08,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 52:  38%|███▊      | 3/8 [00:03<00:06,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 52:  50%|█████     | 4/8 [00:04<00:04,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 52:  62%|██████▎   | 5/8 [00:06<00:03,  1.22s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 52:  75%|███████▌  | 6/8 [00:07<00:02,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 52: 100%|██████████| 8/8 [00:09<00:00,  1.24s/it]
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 52: loss=0.0563
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 53:  12%|█▎        | 1/8 [00:01<00:08,  1.21s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 53:  38%|███▊      | 3/8 [00:03<00:06,  1.22s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 53:  50%|█████     | 4/8 [00:04<00:04,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 53:  75%|███████▌  | 6/8 [00:07<00:02,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 53:  88%|████████▊ | 7/8 [00:08<00:01,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 53: loss=0.0560
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 53: 100%|██████████| 8/8 [00:09<00:00,  1.23s/it]
+Epoch 54:  12%|█▎        | 1/8 [00:01<00:08,  1.22s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 54:  25%|██▌       | 2/8 [00:02<00:07,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 54:  38%|███▊      | 3/8 [00:03<00:06,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 54:  50%|█████     | 4/8 [00:05<00:05,  1.30s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 54:  62%|██████▎   | 5/8 [00:06<00:03,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 54:  75%|███████▌  | 6/8 [00:07<00:02,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 54: 100%|██████████| 8/8 [00:09<00:00,  1.25s/it]
+Epoch 55:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 54: loss=0.0555
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 55:  12%|█▎        | 1/8 [00:01<00:08,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 55:  25%|██▌       | 2/8 [00:02<00:07,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 55:  38%|███▊      | 3/8 [00:03<00:06,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 55:  50%|█████     | 4/8 [00:04<00:04,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 55:  62%|██████▎   | 5/8 [00:06<00:03,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 55:  75%|███████▌  | 6/8 [00:07<00:02,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 55:  88%|████████▊ | 7/8 [00:08<00:01,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 55: loss=0.0549
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 55: 100%|██████████| 8/8 [00:09<00:00,  1.24s/it]
+Epoch 56:  12%|█▎        | 1/8 [00:01<00:08,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 56:  38%|███▊      | 3/8 [00:03<00:06,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 56:  50%|█████     | 4/8 [00:04<00:04,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 56:  62%|██████▎   | 5/8 [00:06<00:03,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 56:  75%|███████▌  | 6/8 [00:07<00:02,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 56: 100%|██████████| 8/8 [00:10<00:00,  1.25s/it]
+Epoch 57:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 56: loss=0.0550
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 57:  12%|█▎        | 1/8 [00:01<00:08,  1.22s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 57:  25%|██▌       | 2/8 [00:02<00:07,  1.22s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 57:  50%|█████     | 4/8 [00:04<00:04,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 57:  62%|██████▎   | 5/8 [00:06<00:03,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 57:  75%|███████▌  | 6/8 [00:07<00:02,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 57:  88%|████████▊ | 7/8 [00:08<00:01,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 57: 100%|██████████| 8/8 [00:09<00:00,  1.24s/it]
+Epoch 58:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 57: loss=0.0547
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 58:  12%|█▎        | 1/8 [00:01<00:08,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 58:  25%|██▌       | 2/8 [00:02<00:07,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 58:  50%|█████     | 4/8 [00:04<00:04,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 58:  62%|██████▎   | 5/8 [00:06<00:03,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 58:  75%|███████▌  | 6/8 [00:07<00:02,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 58:  88%|████████▊ | 7/8 [00:08<00:01,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 58: 100%|██████████| 8/8 [00:09<00:00,  1.24s/it]
+Epoch 59:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 58: loss=0.0541
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 59:  12%|█▎        | 1/8 [00:01<00:08,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 59:  25%|██▌       | 2/8 [00:02<00:07,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 59:  50%|█████     | 4/8 [00:04<00:04,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 59:  62%|██████▎   | 5/8 [00:06<00:03,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 59:  88%|████████▊ | 7/8 [00:08<00:01,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 59: 100%|██████████| 8/8 [00:09<00:00,  1.24s/it]
+Epoch 60:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 59: loss=0.0541
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 60:  12%|█▎        | 1/8 [00:01<00:08,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 60:  25%|██▌       | 2/8 [00:02<00:07,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 60:  50%|█████     | 4/8 [00:04<00:05,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 60:  62%|██████▎   | 5/8 [00:06<00:03,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 60:  88%|████████▊ | 7/8 [00:08<00:01,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 60: 100%|██████████| 8/8 [00:09<00:00,  1.24s/it]
+Epoch 61:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 60: loss=0.0539
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 61:  25%|██▌       | 2/8 [00:02<00:07,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 61:  50%|█████     | 4/8 [00:04<00:04,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 61:  62%|██████▎   | 5/8 [00:06<00:03,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 61:  88%|████████▊ | 7/8 [00:08<00:01,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 61: 100%|██████████| 8/8 [00:10<00:00,  1.25s/it]
+Epoch 62:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 61: loss=0.0535
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 62:  25%|██▌       | 2/8 [00:02<00:07,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 62:  38%|███▊      | 3/8 [00:03<00:06,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 62:  50%|█████     | 4/8 [00:05<00:05,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 62:  62%|██████▎   | 5/8 [00:06<00:03,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 62:  75%|███████▌  | 6/8 [00:07<00:02,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 62:  88%|████████▊ | 7/8 [00:08<00:01,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 62: 100%|██████████| 8/8 [00:09<00:00,  1.25s/it]
+Epoch 63:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 62: loss=0.0532
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 63:  25%|██▌       | 2/8 [00:02<00:07,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 63:  38%|███▊      | 3/8 [00:03<00:06,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 63:  50%|█████     | 4/8 [00:04<00:04,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 63:  62%|██████▎   | 5/8 [00:06<00:03,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 63:  75%|███████▌  | 6/8 [00:07<00:02,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 63:  88%|████████▊ | 7/8 [00:08<00:01,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 63: 100%|██████████| 8/8 [00:10<00:00,  1.25s/it]
+Epoch 64:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 63: loss=0.0534
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 64:  25%|██▌       | 2/8 [00:02<00:07,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 64:  38%|███▊      | 3/8 [00:03<00:06,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 64:  62%|██████▎   | 5/8 [00:06<00:03,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 64:  75%|███████▌  | 6/8 [00:07<00:02,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 64:  88%|████████▊ | 7/8 [00:08<00:01,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 64: loss=0.0525
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 64: 100%|██████████| 8/8 [00:09<00:00,  1.24s/it]
+Epoch 65:  12%|█▎        | 1/8 [00:01<00:08,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 65:  25%|██▌       | 2/8 [00:02<00:07,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 65:  38%|███▊      | 3/8 [00:03<00:06,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 65:  62%|██████▎   | 5/8 [00:06<00:03,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 65:  75%|███████▌  | 6/8 [00:07<00:02,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 65:  88%|████████▊ | 7/8 [00:08<00:01,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 65: loss=0.0528
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 65: 100%|██████████| 8/8 [00:10<00:00,  1.25s/it]
+Epoch 66:  12%|█▎        | 1/8 [00:01<00:08,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 66:  25%|██▌       | 2/8 [00:02<00:07,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 66:  38%|███▊      | 3/8 [00:03<00:06,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 66:  50%|█████     | 4/8 [00:04<00:04,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 66:  62%|██████▎   | 5/8 [00:06<00:03,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 66:  88%|████████▊ | 7/8 [00:08<00:01,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 66: loss=0.0525
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+Epoch 66: 100%|██████████| 8/8 [00:10<00:00,  1.25s/it]
+Epoch 67:   0%|          | 0/8 [00:00<?, ?it/s][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 67:  12%|█▎        | 1/8 [00:01<00:08,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 67:  25%|██▌       | 2/8 [00:02<00:07,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 67:  50%|█████     | 4/8 [00:04<00:04,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 67:  75%|███████▌  | 6/8 [00:07<00:02,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 67:  88%|████████▊ | 7/8 [00:08<00:01,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 67: loss=0.0523
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 67: 100%|██████████| 8/8 [00:09<00:00,  1.24s/it]
+Epoch 68:  12%|█▎        | 1/8 [00:01<00:08,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 68:  25%|██▌       | 2/8 [00:02<00:07,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 68:  38%|███▊      | 3/8 [00:03<00:06,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 68:  50%|█████     | 4/8 [00:05<00:05,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 68:  62%|██████▎   | 5/8 [00:06<00:03,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 68:  75%|███████▌  | 6/8 [00:07<00:02,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 68:  88%|████████▊ | 7/8 [00:08<00:01,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 68: loss=0.0520
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 68: 100%|██████████| 8/8 [00:10<00:00,  1.25s/it]
+Epoch 69:  12%|█▎        | 1/8 [00:01<00:08,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 69:  25%|██▌       | 2/8 [00:02<00:07,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 69:  38%|███▊      | 3/8 [00:03<00:06,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 69:  62%|██████▎   | 5/8 [00:06<00:03,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 69:  75%|███████▌  | 6/8 [00:07<00:02,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 69: 100%|██████████| 8/8 [00:09<00:00,  1.25s/it]
+Epoch 70:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 69: loss=0.0521
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 70:  12%|█▎        | 1/8 [00:01<00:08,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 70:  25%|██▌       | 2/8 [00:02<00:07,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 70:  38%|███▊      | 3/8 [00:03<00:06,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 70:  50%|█████     | 4/8 [00:04<00:04,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 70:  62%|██████▎   | 5/8 [00:06<00:03,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 70:  75%|███████▌  | 6/8 [00:07<00:02,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 70:  88%|████████▊ | 7/8 [00:08<00:01,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 70: loss=0.0511
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 70: 100%|██████████| 8/8 [00:09<00:00,  1.24s/it]
+Epoch 71:  12%|█▎        | 1/8 [00:01<00:08,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 71:  38%|███▊      | 3/8 [00:03<00:06,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 71:  62%|██████▎   | 5/8 [00:06<00:03,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 71:  75%|███████▌  | 6/8 [00:07<00:02,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 71:  88%|████████▊ | 7/8 [00:08<00:01,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 71: loss=0.0514
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 71: 100%|██████████| 8/8 [00:09<00:00,  1.24s/it]
+Epoch 72:  12%|█▎        | 1/8 [00:01<00:08,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 72:  25%|██▌       | 2/8 [00:02<00:07,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 72:  38%|███▊      | 3/8 [00:03<00:06,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 72:  62%|██████▎   | 5/8 [00:06<00:03,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 72:  75%|███████▌  | 6/8 [00:07<00:02,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 72:  88%|████████▊ | 7/8 [00:08<00:01,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 72: 100%|██████████| 8/8 [00:09<00:00,  1.23s/it]
+Epoch 73:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 72: loss=0.0515
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 73:  12%|█▎        | 1/8 [00:01<00:08,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 73:  38%|███▊      | 3/8 [00:03<00:06,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 73:  50%|█████     | 4/8 [00:04<00:04,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 73:  62%|██████▎   | 5/8 [00:06<00:03,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 73:  88%|████████▊ | 7/8 [00:08<00:01,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 73: loss=0.0509
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 73: 100%|██████████| 8/8 [00:09<00:00,  1.24s/it]
+Epoch 74:  12%|█▎        | 1/8 [00:01<00:08,  1.22s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 74:  38%|███▊      | 3/8 [00:03<00:06,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 74:  50%|█████     | 4/8 [00:04<00:04,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 74:  62%|██████▎   | 5/8 [00:06<00:03,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 74:  75%|███████▌  | 6/8 [00:07<00:02,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 74:  88%|████████▊ | 7/8 [00:08<00:01,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 74: loss=0.0504
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 74: 100%|██████████| 8/8 [00:09<00:00,  1.23s/it]
+Epoch 75:  12%|█▎        | 1/8 [00:01<00:08,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 75:  25%|██▌       | 2/8 [00:02<00:07,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 75:  38%|███▊      | 3/8 [00:03<00:06,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 75:  50%|█████     | 4/8 [00:04<00:04,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 75:  62%|██████▎   | 5/8 [00:06<00:03,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 75:  75%|███████▌  | 6/8 [00:07<00:02,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 75:  88%|████████▊ | 7/8 [00:08<00:01,  1.31s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 75: loss=0.0501
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 75: 100%|██████████| 8/8 [00:10<00:00,  1.27s/it]
+Epoch 76:  12%|█▎        | 1/8 [00:01<00:08,  1.18s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 76:  25%|██▌       | 2/8 [00:02<00:07,  1.19s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 76:  38%|███▊      | 3/8 [00:03<00:06,  1.22s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 76:  50%|█████     | 4/8 [00:04<00:04,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 76:  62%|██████▎   | 5/8 [00:06<00:03,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 76:  75%|███████▌  | 6/8 [00:07<00:02,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 76: 100%|██████████| 8/8 [00:09<00:00,  1.23s/it]
+Epoch 77:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 76: loss=0.0503
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 77:  25%|██▌       | 2/8 [00:02<00:07,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 77:  38%|███▊      | 3/8 [00:03<00:06,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 77:  50%|█████     | 4/8 [00:04<00:04,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 77:  75%|███████▌  | 6/8 [00:07<00:02,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 77: 100%|██████████| 8/8 [00:09<00:00,  1.25s/it]
+Epoch 78:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 77: loss=0.0504
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 78:  12%|█▎        | 1/8 [00:01<00:08,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 78:  25%|██▌       | 2/8 [00:02<00:07,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 78:  38%|███▊      | 3/8 [00:03<00:06,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 78:  50%|█████     | 4/8 [00:05<00:05,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 78:  75%|███████▌  | 6/8 [00:07<00:02,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 78:  88%|████████▊ | 7/8 [00:08<00:01,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 78: 100%|██████████| 8/8 [00:10<00:00,  1.26s/it]
+Epoch 79:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 78: loss=0.0501
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 79:  12%|█▎        | 1/8 [00:01<00:08,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 79:  25%|██▌       | 2/8 [00:02<00:07,  1.23s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 79:  50%|█████     | 4/8 [00:04<00:04,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 79:  62%|██████▎   | 5/8 [00:06<00:03,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 79:  75%|███████▌  | 6/8 [00:07<00:02,  1.24s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 79:  88%|████████▊ | 7/8 [00:08<00:01,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 79: loss=0.0500
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 79: 100%|██████████| 8/8 [00:10<00:00,  1.25s/it]
+Epoch 80:  12%|█▎        | 1/8 [00:01<00:08,  1.22s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 80:  25%|██▌       | 2/8 [00:02<00:07,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 80:  38%|███▊      | 3/8 [00:03<00:06,  1.33s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 80:  50%|█████     | 4/8 [00:05<00:05,  1.37s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 80:  75%|███████▌  | 6/8 [00:07<00:02,  1.34s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 80:  88%|████████▊ | 7/8 [00:09<00:01,  1.35s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 80: loss=0.0495
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 80: 100%|██████████| 8/8 [00:10<00:00,  1.34s/it]
+Epoch 81:  12%|█▎        | 1/8 [00:01<00:09,  1.36s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 81:  25%|██▌       | 2/8 [00:02<00:08,  1.35s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 81:  50%|█████     | 4/8 [00:05<00:05,  1.33s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 81:  75%|███████▌  | 6/8 [00:07<00:02,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 81:  88%|████████▊ | 7/8 [00:09<00:01,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 81: 100%|██████████| 8/8 [00:10<00:00,  1.29s/it]
+Epoch 82:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 81: loss=0.0497
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 82:  25%|██▌       | 2/8 [00:02<00:07,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 82:  38%|███▊      | 3/8 [00:03<00:06,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 82:  62%|██████▎   | 5/8 [00:06<00:03,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 82:  75%|███████▌  | 6/8 [00:07<00:02,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 82:  88%|████████▊ | 7/8 [00:08<00:01,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 82: 100%|██████████| 8/8 [00:10<00:00,  1.26s/it]
+Epoch 83:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 82: loss=0.0494
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 83:  12%|█▎        | 1/8 [00:01<00:08,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 83:  25%|██▌       | 2/8 [00:02<00:07,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 83:  38%|███▊      | 3/8 [00:03<00:06,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 83:  50%|█████     | 4/8 [00:05<00:05,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 83:  62%|██████▎   | 5/8 [00:06<00:03,  1.33s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 83:  88%|████████▊ | 7/8 [00:08<00:01,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 83: loss=0.0489
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 83: 100%|██████████| 8/8 [00:10<00:00,  1.27s/it]
+Epoch 84:  12%|█▎        | 1/8 [00:01<00:08,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 84:  25%|██▌       | 2/8 [00:02<00:07,  1.30s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 84:  38%|███▊      | 3/8 [00:03<00:06,  1.35s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 84:  50%|█████     | 4/8 [00:05<00:05,  1.32s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 84:  75%|███████▌  | 6/8 [00:07<00:02,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 84:  88%|████████▊ | 7/8 [00:08<00:01,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 84: loss=0.0492
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 84: 100%|██████████| 8/8 [00:10<00:00,  1.28s/it]
+Epoch 85:  12%|█▎        | 1/8 [00:01<00:08,  1.29s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 85:  25%|██▌       | 2/8 [00:02<00:07,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 85:  38%|███▊      | 3/8 [00:03<00:06,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 85:  50%|█████     | 4/8 [00:05<00:04,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 85:  62%|██████▎   | 5/8 [00:06<00:03,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 85:  75%|███████▌  | 6/8 [00:07<00:02,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 85:  88%|████████▊ | 7/8 [00:08<00:01,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 85: loss=0.0491
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 85: 100%|██████████| 8/8 [00:10<00:00,  1.26s/it]
+Epoch 86:  12%|█▎        | 1/8 [00:01<00:08,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 86:  25%|██▌       | 2/8 [00:02<00:07,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 86:  38%|███▊      | 3/8 [00:03<00:06,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 86:  50%|█████     | 4/8 [00:05<00:05,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 86:  62%|██████▎   | 5/8 [00:06<00:03,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 86:  75%|███████▌  | 6/8 [00:07<00:02,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 86:  88%|████████▊ | 7/8 [00:08<00:01,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 86: 100%|██████████| 8/8 [00:10<00:00,  1.26s/it]
+Epoch 87:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 86: loss=0.0490
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 87:  12%|█▎        | 1/8 [00:01<00:08,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 87:  25%|██▌       | 2/8 [00:02<00:07,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 87:  38%|███▊      | 3/8 [00:03<00:06,  1.30s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 87:  50%|█████     | 4/8 [00:05<00:05,  1.36s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 87:  75%|███████▌  | 6/8 [00:07<00:02,  1.29s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 87:  88%|████████▊ | 7/8 [00:09<00:01,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 87: loss=0.0487
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 87: 100%|██████████| 8/8 [00:10<00:00,  1.29s/it]
+Epoch 88:  12%|█▎        | 1/8 [00:01<00:09,  1.33s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 88:  38%|███▊      | 3/8 [00:03<00:06,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 88:  50%|█████     | 4/8 [00:05<00:05,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 88:  75%|███████▌  | 6/8 [00:07<00:02,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 88:  88%|████████▊ | 7/8 [00:08<00:01,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 88: loss=0.0486
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 88: 100%|██████████| 8/8 [00:10<00:00,  1.28s/it]
+Epoch 89:  12%|█▎        | 1/8 [00:01<00:08,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 89:  25%|██▌       | 2/8 [00:02<00:07,  1.25s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 89:  50%|█████     | 4/8 [00:05<00:05,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 89:  75%|███████▌  | 6/8 [00:07<00:02,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 89:  88%|████████▊ | 7/8 [00:08<00:01,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 89: 100%|██████████| 8/8 [00:10<00:00,  1.27s/it]
+Epoch 90:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 89: loss=0.0488
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 90:  12%|█▎        | 1/8 [00:01<00:10,  1.48s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 90:  38%|███▊      | 3/8 [00:04<00:06,  1.37s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 90:  50%|█████     | 4/8 [00:05<00:05,  1.31s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 90:  75%|███████▌  | 6/8 [00:08<00:02,  1.37s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 90:  88%|████████▊ | 7/8 [00:09<00:01,  1.35s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 90: loss=0.0481
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 90: 100%|██████████| 8/8 [00:10<00:00,  1.34s/it]
+Epoch 91:  12%|█▎        | 1/8 [00:01<00:08,  1.20s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 91:  38%|███▊      | 3/8 [00:03<00:06,  1.30s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 91:  62%|██████▎   | 5/8 [00:06<00:03,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 91:  75%|███████▌  | 6/8 [00:07<00:02,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 91:  88%|████████▊ | 7/8 [00:08<00:01,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 91: 100%|██████████| 8/8 [00:10<00:00,  1.27s/it]
+Epoch 92:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 91: loss=0.0481
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 92:  25%|██▌       | 2/8 [00:02<00:07,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 92:  38%|███▊      | 3/8 [00:03<00:06,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 92:  62%|██████▎   | 5/8 [00:06<00:03,  1.29s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 92:  88%|████████▊ | 7/8 [00:09<00:01,  1.29s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 92: loss=0.0482
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 92: 100%|██████████| 8/8 [00:10<00:00,  1.28s/it]
+Epoch 93:  12%|█▎        | 1/8 [00:01<00:08,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 93:  25%|██▌       | 2/8 [00:02<00:07,  1.29s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 93:  38%|███▊      | 3/8 [00:03<00:06,  1.29s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 93:  62%|██████▎   | 5/8 [00:06<00:03,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 93:  88%|████████▊ | 7/8 [00:08<00:01,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 93: 100%|██████████| 8/8 [00:10<00:00,  1.28s/it]
+Epoch 94:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 93: loss=0.0480
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 94:  12%|█▎        | 1/8 [00:01<00:09,  1.29s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 94:  25%|██▌       | 2/8 [00:02<00:07,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 94:  50%|█████     | 4/8 [00:05<00:05,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 94:  75%|███████▌  | 6/8 [00:07<00:02,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 94:  88%|████████▊ | 7/8 [00:08<00:01,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 94: 100%|██████████| 8/8 [00:10<00:00,  1.28s/it]
+Epoch 95:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 94: loss=0.0481
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 95:  12%|█▎        | 1/8 [00:01<00:08,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 95:  25%|██▌       | 2/8 [00:02<00:07,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 95:  38%|███▊      | 3/8 [00:03<00:06,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 95:  62%|██████▎   | 5/8 [00:06<00:03,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 95:  75%|███████▌  | 6/8 [00:07<00:02,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 95: 100%|██████████| 8/8 [00:10<00:00,  1.27s/it]
+Epoch 96:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 95: loss=0.0477
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 96:  12%|█▎        | 1/8 [00:01<00:08,  1.29s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 96:  25%|██▌       | 2/8 [00:02<00:07,  1.29s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 96:  50%|█████     | 4/8 [00:05<00:05,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 96:  62%|██████▎   | 5/8 [00:06<00:03,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 96:  75%|███████▌  | 6/8 [00:07<00:02,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 96: 100%|██████████| 8/8 [00:10<00:00,  1.28s/it]
+Epoch 97:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 96: loss=0.0476
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 97:  12%|█▎        | 1/8 [00:01<00:08,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 97:  25%|██▌       | 2/8 [00:02<00:07,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 97:  38%|███▊      | 3/8 [00:03<00:06,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 97:  50%|█████     | 4/8 [00:05<00:05,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 97:  62%|██████▎   | 5/8 [00:06<00:03,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 97:  75%|███████▌  | 6/8 [00:07<00:02,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 97: 100%|██████████| 8/8 [00:10<00:00,  1.27s/it]
+Epoch 98:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 97: loss=0.0473
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 98:  12%|█▎        | 1/8 [00:01<00:08,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 98:  38%|███▊      | 3/8 [00:03<00:06,  1.29s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 98:  62%|██████▎   | 5/8 [00:06<00:03,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 98:  75%|███████▌  | 6/8 [00:07<00:02,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 98: 100%|██████████| 8/8 [00:10<00:00,  1.28s/it]
+Epoch 99:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 98: loss=0.0472
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 99:  12%|█▎        | 1/8 [00:01<00:08,  1.28s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 99:  25%|██▌       | 2/8 [00:02<00:07,  1.31s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 99:  38%|███▊      | 3/8 [00:03<00:06,  1.31s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 99:  62%|██████▎   | 5/8 [00:06<00:03,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 99:  88%|████████▊ | 7/8 [00:08<00:01,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 99: 100%|██████████| 8/8 [00:10<00:00,  1.28s/it]
+Epoch 100:   0%|          | 0/8 [00:00<?, ?it/s][mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 99: loss=0.0475
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 100:  12%|█▎        | 1/8 [00:01<00:09,  1.31s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 100:  38%|███▊      | 3/8 [00:03<00:06,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 100:  50%|█████     | 4/8 [00:05<00:05,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 100:  62%|██████▎   | 5/8 [00:06<00:03,  1.26s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/batch] 1S=0 2SC=0 2SN=2
+Epoch 100:  88%|████████▊ | 7/8 [00:08<00:01,  1.27s/it][mix/batch] 1S=0 2SC=0 2SN=2
+[mix/epoch] seen=16 pct=(1S=0.000, 2SC=0.000, 2SN=1.000) batch_mean=(0.0,0.0,2.0) batch_std=(0.0,0.0,0.0)
+Epoch 100: loss=0.0469
+Running full validation...
+Validation dataset for SampleT.S1_NOISE not found.
+No validation data for 1s_noise
+Validation dataset for SampleT.S2_CLEAN not found.
+No validation data for 2s_clean
+Validation dataset for SampleT.S2_NOISE not found.
+No validation data for 2s_noise
+Epoch 100: 100%|██████████| 8/8 [00:10<00:00,  1.27s/it]
+Traceback (most recent call last):
+  File "/Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/avspeech/training/overfitting_test.py", line 79, in <module>
+    setup()
+  File "/Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/avspeech/training/overfitting_test.py", line 73, in setup
+    trainer.train()
+  File "/Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/avspeech/training/trainer.py", line 234, in train
+    self._save_checkpoint(epoch, train_metrics)
+  File "/Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/avspeech/training/trainer.py", line 99, in _save_checkpoint
+    torch.save(checkpoint, path)
+  File "/Users/jonatanvider/miniconda3/envs/avspeech/lib/python3.11/site-packages/torch/serialization.py", line 651, in save
+    with _open_zipfile_writer(f) as opened_zipfile:
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jonatanvider/miniconda3/envs/avspeech/lib/python3.11/site-packages/torch/serialization.py", line 525, in _open_zipfile_writer
+    return container(name_or_buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jonatanvider/miniconda3/envs/avspeech/lib/python3.11/site-packages/torch/serialization.py", line 496, in __init__
+    super().__init__(torch._C.PyTorchFileWriter(self.name))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Parent directory overfit_checkpoints does not exist.
+
+Process finished with exit code 1
