@@ -139,15 +139,10 @@ class AVSpeechTrainer:
         for batch in progress:
             # audio_input, visual_input, target = batch
             # Move to device
-            audio_input = batch['mixture'].to(self.device)
-            target = batch['clean'].to(self.device)
+
+            audio_input =batch['mixture'].to(self.device)
             visual_input = batch['face'].to(self.device)
-
-
-
-            audio_input = audio_input.to(self.device)
-            visual_input = visual_input.to(self.device)
-            target = target.to(self.device)
+            target = batch['clean'].to(self.device)
 
             # Forward pass
             output = self.model(audio_input, visual_input)
