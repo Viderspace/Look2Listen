@@ -18,9 +18,11 @@ def setup():
             SampleT.S2_NOISE: 1.00
         },
         num_epochs=100,
-        learning_rate=6e-5,
-        min_lr=3e-5,
-        batch_size=2,
+        learning_rate=1e-4,
+        min_lr=1e-5,
+            # learning_rate=6e-5,
+            # min_lr=3e-5,
+        batch_size=4,
         save_interval=100,
         gradient_clip=5.0
     )
@@ -39,9 +41,8 @@ def setup():
             train_paths=paths,
             val_paths={},
             probabilities=phase.probabilities,
-            batch_size=1,
+            batch_size=4,
             num_workers=1,
-            seed=43
     )
     print(f"{data_loader.sampler.dataset_sizes=}")
     print(f"{len(data_loader.train_dataset)=}")
@@ -51,29 +52,28 @@ def setup():
     # Cell 8: Create model and trainer
     from avspeech.model.av_model import AudioVisualModel
     from avspeech.training.trainer import Trainer
-    from avspeech.training.trainer_v2 import AVSpeechTrainer
+    # from avspeech.training.trainer_v2 import AVSpeechTrainer
 
 
     model = AudioVisualModel()
     print(f"✓ Model created")
 
-    trainer = AVSpeechTrainer(
-            model=model,
-            phase=phase,
-            data_loader=data_loader,
-            device=DEVICE,
-            working_dir= Path("/Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/avspeech/training/overfit_artifacts")
-
-    )
-    # trainer = Trainer(
+    # trainer = AVSpeechTrainer(
     #         model=model,
     #         phase=phase,
     #         data_loader=data_loader,
     #         device=DEVICE,
-    #         log_dir= Path("/Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/avspeech/training/overfit_artifacts"),
-    #         checkpoint_dir=Path("/Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/avspeech/training/overfit_artifacts")
-    #
+    #         working_dir= Path("/Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/avspeech/training/overfit_artifacts")
     # )
+    trainer = Trainer(
+            model=model,
+            phase=phase,
+            data_loader=data_loader,
+            device=DEVICE,
+            log_dir= Path("/Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/avspeech/training/overfit_artifacts"),
+            checkpoint_dir=Path("/Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/avspeech/training/overfit_artifacts")
+
+    )
     print(f"✓ Trainer initialized")
 
     # Cell 9: Start training

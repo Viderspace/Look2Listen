@@ -24,7 +24,7 @@ class MixedDataLoader:
         probabilities: Dict[SampleT, float],
         batch_size: int = 8,
         num_workers: int = 2,
-        seed: int = 41,
+        seed: Optional[int] = None,
     ):
         """
         Initialize mixed data loader with combined training dataset and separate validation datasets.

@@ -43,7 +43,7 @@ class SampleMixer(Iterable[Batch]):
         dataset_sizes: Dict[SampleT, int],
         probabilities: Dict[SampleT, float],
         batch_size: int = 32,
-        seed: int = 42,
+        seed: Optional[int] = None,
     ) -> None:
         """Store sizes/ratios and basic config. No heavy work here."""
         self.dataset_sizes: Dict[SampleT, int] = {t: int(n) for t, n in dict(dataset_sizes).items()}
