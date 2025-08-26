@@ -4,7 +4,7 @@ from typing import Dict, Optional, Iterator, Any
 import torch
 from torch.optim import Optimizer
 # from torch.utils.tensorboard import SummaryWriter
-from torch.optim.lr_scheduler import CosineAnnealingLR, LRScheduler
+from torch.optim.lr_scheduler import CosineAnnealingLR, LRScheduler, LinearLR, SequentialLR
 from torch.utils.data import DataLoader
 
 from avspeech.training.dataloader import MixedDataLoader
@@ -75,26 +75,89 @@ def save_checkpoint(epoch : int,
     torch.save(checkpoint, latest_path)
 
 
-def build_optimizer(parameters : Iterator[Any] , learning_rate: float) -> Optimizer:
-    """Create Adam optimizer for the model"""
-    return torch.optim.Adam(parameters, lr=learning_rate)
+# def build_optimizer(parameters : Iterator[Any] , learning_rate: float) -> Optimizer:
+#     """Create Adam optimizer for the model"""
+#     optimizer = torch.optim.Adam(parameters, lr=learning_rate)
+#     print("param groups:", len(optimizer.param_groups))
+#     for i, g in enumerate(optimizer.param_groups):
+#         print(f"  pg{i}: lr={g['lr']:.2e}, wd={g.get('weight_decay', 0)}")
+#
+#     return optimizer
+def build_optimizer(parameters: Iterator[Any], learning_rate: float,
+                    weight_decay: float = 0.01,
+                    betas=(0.9, 0.999), eps: float = 1e-8) -> Optimizer:
+    """Create AdamW optimizer (single param group)."""
+    return torch.optim.AdamW(
+        parameters,
+        lr=learning_rate,
+        betas=betas,
+        eps=eps,
+        weight_decay=weight_decay
+    )
 
+
+
+# def build_scheduler(
+#         optimizer: Optimizer,
+#         phase : TrainingPhase,
+#         steps_per_epoch: int,
+#         verbose: bool = True
+# ) -> LRScheduler:
+#     """Create cosine annealing LR scheduler"""
+#     total_steps = steps_per_epoch * phase.num_epochs
+#     _print_verbose(f"[sched] steps/epoch={steps_per_epoch}, total_steps={total_steps}, "
+#               f"lr_start={phase.learning_rate:.2e}, lr_min={phase.min_lr:.2e}", verbose)
+#
+#     return CosineAnnealingLR(optimizer, T_max=total_steps, eta_min=phase.min_lr)
+
+# scheduler.py
 
 def build_scheduler(
-        optimizer: Optimizer,
-        phase : TrainingPhase,
-        steps_per_epoch: int,
-        verbose: bool = True
+    optimizer: Optimizer,
+    phase,                 # needs: num_epochs, learning_rate, min_lr, warmup_fraction
+    steps_per_epoch: int,
+    verbose: bool = True,
 ) -> LRScheduler:
-    """Create cosine annealing LR scheduler"""
-    total_steps = steps_per_epoch * phase.num_epochs
+    total = steps_per_epoch * phase.num_epochs
+    w = int(round(total * phase.warmup_fraction))          # warmup steps
+    assert 0 <= w < total, "warmup_fraction must be in (0,1) and leave room for cosine"
 
 
-    _print_verbose(f"[sched] steps/epoch={steps_per_epoch}, total_steps={total_steps}, "
-              f"lr_start={phase.learning_rate:.2e}, lr_min={phase.min_lr:.2e}", verbose)
+    # linear warmup from 1e-2 * base_lr → base_lr
+    warmup  = LinearLR(optimizer, start_factor=1e-3, end_factor=1.0, total_iters=w)
+    cosine  = CosineAnnealingLR(optimizer, T_max=total - w, eta_min=phase.min_lr)
+    sched   = SequentialLR(optimizer, [warmup, cosine], milestones=[w])
 
-    return CosineAnnealingLR(optimizer, T_max=total_steps, eta_min=phase.min_lr)
+    if verbose:
+        _print_verbose(
+            f"[sched] steps/epoch={steps_per_epoch}, total={total}, warmup={w} "
+            f"({phase.warmup_fraction*100:.1f}%), T_max={total - w}, "
+            f"lr_start={phase.learning_rate:.2e}, lr_min={phase.min_lr:.2e}",
+            True
+        )
+    return sched
 
+
+# def build_scheduler(
+#     optimizer: Optimizer,
+#     phase,                 # needs: num_epochs, learning_rate, min_lr, warmup_fraction
+#     steps_per_epoch: int,
+#     verbose: bool = True,
+# ) -> LRScheduler:
+#     total = steps_per_epoch * phase.num_epochs
+#     w = int(round(total * phase.warmup_fraction))          # warmup steps
+#     assert 0 <= w < total, "warmup_fraction must be in (0,1) and leave room for cosine"
+#
+#     scheduler = torch.optim.lr_scheduler.CyclicLR(
+#             optimizer,
+#             base_lr=phase.learning_rate,
+#             max_lr=phase.learning_rate * 10,
+#             step_size_up=4 * steps_per_epoch,
+#             mode="triangular",
+#             cycle_momentum=False,
+#     )
+#     return scheduler
+#
 
 
 def freeze_early_layers_on_warm_start(batch_idx: int, model : torch.nn.Module, unfreeze_batch: int) -> None:
@@ -131,7 +194,7 @@ def run_validation(device : torch.device,
                    log_dir: Path,
                    verbose: bool = True) -> None:
     """Run validation for all sample types"""
-    print("Running full validation...")
+    # print("Running full validation...")
     for sample_type in (SampleT.S1_NOISE, SampleT.S2_CLEAN, SampleT.S2_NOISE):
         data_loader = data_manager.get_val_loader(sample_type)
         metrics = validate(device, model, data_loader, sample_type, verbose)

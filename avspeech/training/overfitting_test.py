@@ -18,8 +18,9 @@ def setup():
             SampleT.S2_NOISE: 1.00
         },
         num_epochs=100,
-        learning_rate=1e-4,
+        learning_rate=3e-4,
         min_lr=2.5e-5,
+        warmup_fraction=0.1,
             # learning_rate=6e-5,
             # min_lr=3e-5,
         batch_size=4,

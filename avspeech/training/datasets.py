@@ -48,9 +48,9 @@ class AVSpeechDatasetBase(Dataset):
         sample_dir = self.sample_dirs[idx]
 
         # Load only what we need
-        mixture_audio = torch.load(sample_dir / 'audio' / 'mixture_embs.pt')
-        clean_audio = torch.load(sample_dir / 'audio' / 'clean_embs.pt')
-        face_embs = torch.load(sample_dir / 'face' / 'face_embs.pt')
+        mixture_audio = torch.load(sample_dir / 'audio' / 'mixture_embs.pt', weights_only=True)
+        clean_audio = torch.load(sample_dir / 'audio' / 'clean_embs.pt', weights_only=True)
+        face_embs = torch.load(sample_dir / 'face' / 'face_embs.pt', weights_only=True)
 
         return {
                 'mixture'  : mixture_audio,  # [257, 298, 2]

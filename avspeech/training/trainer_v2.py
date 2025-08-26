@@ -187,7 +187,7 @@ class AVSpeechTrainer:
         and return a tuple in this exact order:
             (val_loss_overall, val_s2_noise, val_2s_clean)
         """
-        print("Running full validation...")
+        # print("Running full validation...")
 
         was_training = self.model.training
         self.model.eval()

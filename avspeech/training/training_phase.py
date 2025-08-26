@@ -24,6 +24,7 @@ class TrainingPhase:
     learning_rate: float
     min_lr: float
     batch_size: int = 8
+    warmup_fraction: float = 0.00  # e.g., 0.03 for 3% warmup
     gradient_clip: float = 1.0
     save_interval: int = 1
     val_interval: int = 1

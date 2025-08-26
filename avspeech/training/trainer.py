@@ -11,6 +11,13 @@ from avspeech.training.loss import ComplexCompressedLoss
 from avspeech.training.training_phase import PhaseName, TrainingPhase
 import avspeech.training.trainer_tools as tools
 
+import warnings
+warnings.filterwarnings(
+    "once",
+    message=r"The epoch parameter in `scheduler\.step$begin:math:text$$end:math:text$`.*",
+    category=UserWarning,
+    module="torch.optim.lr_scheduler",
+)
 print_verbose = False  # Set to False to disable verbose logging
 
 
@@ -35,7 +42,7 @@ class Trainer:
 
         self.criterion = ComplexCompressedLoss()
         self.optimizer = tools.build_optimizer(self.model.parameters(), phase.learning_rate)
-        self.scheduler = tools.build_scheduler(self.optimizer, phase, len(data_loader.get_train_loader()), print_verbose)
+        self.scheduler = tools.build_scheduler(self.optimizer, phase, len(data_loader.get_train_loader()))
 
         self.start_epoch = 1
         self.global_step = 0
@@ -51,7 +58,8 @@ class Trainer:
         for epoch in range(self.start_epoch, self.start_epoch + self.phase.num_epochs):
             # Train
             train_metrics = self.train_epoch(epoch)
-            print(f"Epoch {epoch}: loss={train_metrics['loss']:.4f}")
+            print(f"\nEpoch {epoch}: loss={train_metrics['loss']:.4f}", flush=True)
+
 
             # Validate
             if epoch % self.phase.val_interval == 0:  # usually every epoch
@@ -67,6 +75,8 @@ class Trainer:
         """Run one training epoch and return average metrics"""
         self.model.train()
         train_loader = self.data_loader.get_train_loader()
+        total_updates = self.phase.num_epochs * len(train_loader)
+        warmup_steps = int(round(self.phase.warmup_fraction * total_updates))
 
         accumulated_loss = 0
         how_many_batches_done = 0
@@ -86,11 +96,11 @@ class Trainer:
 
             running_avg = accumulated_loss / max(1, how_many_batches_done)
             recent_trend = (" ↑" if (batch_loss - running_avg >= 0) else " ↓")+ f" {batch_loss - running_avg:.4f}"
-            tqdm_bar.set_postfix(loss_avg=f"{running_avg:.5f}", recent_trend=recent_trend, step=f"{self.global_step}/{self.phase.num_epochs * len(train_loader)}")
-
-            # Log every 100 steps
-            # if self.global_step % 500 == 0:
-            #     tools.log_metrics({"train/loss": batch_loss}, self.global_step, self.log_dir)
+            phase_str = "(warm)" if self.global_step <= warmup_steps else "(cosine)"
+            lr_now = self.optimizer.param_groups[0]["lr"]
+            lr_str = f"{lr_now:.2e} " + phase_str
+            tqdm_bar.update(1)
+            tqdm_bar.set_postfix(lr=lr_str, loss_avg=f"{running_avg:.5f}", recent_trend=recent_trend, step=f"{self.global_step}/{total_updates}")
 
         return {"loss": accumulated_loss / how_many_batches_done}
 

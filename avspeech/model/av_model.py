@@ -73,9 +73,9 @@ class AudioVisualModel(nn.Module):
         self.bn1 = nn.BatchNorm1d(298)
         self.bn2 = nn.BatchNorm1d(298)
         self.bn3 = nn.BatchNorm1d(298)
-        self.drop1 = nn.Dropout(0.2)
-        self.drop2 = nn.Dropout(0.2)
-        self.drop3 = nn.Dropout(0.2)
+        self.drop1 = nn.Dropout(0.1)
+        self.drop2 = nn.Dropout(0.1)
+        self.drop3 = nn.Dropout(0.1)
 
         # Mark final head for Xavier init
         self.fc4._is_output_head = True
@@ -117,13 +117,13 @@ class AudioVisualModel(nn.Module):
         # ---- FC blocks with Leaky → BN(time) → Dropout ----
         # BN1d expects (N, C, L). Here we use C = time = 298, L = feature.
         x = F.leaky_relu(self.fc1(x), negative_slope=LEAKY_SLOPE)  # [B, 298, 600]
-        # x = self.drop1(x)
+        x = self.drop1(x)
 
         x = F.leaky_relu(self.fc2(x), negative_slope=LEAKY_SLOPE)  # [B, 298, 600]
-        # x = self.drop2(x)
+        x = self.drop2(x)
 
         x = F.leaky_relu(self.fc3(x), negative_slope=LEAKY_SLOPE)  # [B, 298, 600]
-        # x = self.drop3(x)
+        x = self.drop3(x)
 
         # Output head
         x = self.fc4(x)  # [B, 298, 514]
