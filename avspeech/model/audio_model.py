@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-
+LEAKY_SLOPE = 0.2
 def _calculate_same_padding(kernel_size, dilation):
     """Calculate padding to maintain input dimensions (TensorFlow 'SAME' padding)"""
     # For 'SAME' padding: padding = (kernel_size - 1) * dilation / 2
@@ -10,12 +10,15 @@ def _calculate_same_padding(kernel_size, dilation):
     return (pad_h, pad_w)
 
 
+
 def init_weights(m):
-    if isinstance(m, (nn.Conv1d, nn.Conv2d, nn.Linear)):
-        nn.init.kaiming_normal_(m.weight, nonlinearity='relu')
+    if isinstance(m, nn.Conv2d):
+        nn.init.kaiming_normal_(m.weight, a=LEAKY_SLOPE, nonlinearity='leaky_relu')
         if m.bias is not None:
             nn.init.zeros_(m.bias)
-
+    elif isinstance(m, nn.BatchNorm2d):
+        nn.init.ones_(m.weight)
+        nn.init.zeros_(m.bias)
 
 
 class AudioDilatedCNN(nn.Module):
@@ -23,31 +26,35 @@ class AudioDilatedCNN(nn.Module):
     def __init__(self):
         super(AudioDilatedCNN, self).__init__()
 
-        # Layer specifications from Table 1 in the paper
-        # Format: (num_filters, kernel_size, dilation)
+        # Layer specifications from Table 1 (keeping permute -> [B, C, F, T])
+        # NOTE: To keep time-growth while using H=freq, W=time, we:
+        #   1) swap the first two kernels (7x1) <-> (1x7)
+        #   2) flip early dilations (dH,dW): (2,1)->(1,2), (4,1)->(1,4), ...
+        # Pads are hard-coded for SAME output size.
+        # Format: (out_channels, kernel_size, dilation, padding)
         layer_specs = [
-                # Layer 1-2: Initial spatial processing
-                (96, (1, 7), (1, 1)),  # conv1: 1x7 kernel
-                (96, (7, 1), (1, 1)),  # conv2: 7x1 kernel
+                # Layer 1-2: Initial spatial processing (kernels swapped)
+                (96, (7, 1), (1, 1), (3, 0)),  # conv1: 7x1 over F (freq)
+                (96, (1, 7), (1, 1), (0, 3)),  # conv2: 1x7 over T (time)
 
-                # Layer 3-8: Time-dilated convolutions (expanding receptive field in time)
-                (96, (5, 5), (1, 1)),  # conv3: 5x5, dilation 1x1
-                (96, (5, 5), (2, 1)),  # conv4: 5x5, dilation 2x1
-                (96, (5, 5), (4, 1)),  # conv5: 5x5, dilation 4x1
-                (96, (5, 5), (8, 1)),  # conv6: 5x5, dilation 8x1
-                (96, (5, 5), (16, 1)),  # conv7: 5x5, dilation 16x1
-                (96, (5, 5), (32, 1)),  # conv8: 5x5, dilation 32x1
+                # Layer 3-8: Time-dilated convolutions (grow along time = W)
+                (96, (5, 5), (1, 1), (2, 2)),  # conv3
+                (96, (5, 5), (1, 2), (2, 4)),  # conv4  (was 2x1)
+                (96, (5, 5), (1, 4), (2, 8)),  # conv5  (was 4x1)
+                (96, (5, 5), (1, 8), (2, 16)),  # conv6  (was 8x1)
+                (96, (5, 5), (1, 16), (2, 32)),  # conv7  (was 16x1)
+                (96, (5, 5), (1, 32), (2, 64)),  # conv8  (was 32x1)
 
-                # Layer 9-14: Time-frequency dilated convolutions
-                (96, (5, 5), (1, 1)),  # conv9: 5x5, dilation 1x1
-                (96, (5, 5), (2, 2)),  # conv10: 5x5, dilation 2x2
-                (96, (5, 5), (4, 4)),  # conv11: 5x5, dilation 4x4
-                (96, (5, 5), (8, 8)),  # conv12: 5x5, dilation 8x8
-                (96, (5, 5), (16, 16)),  # conv13: 5x5, dilation 16x16
-                (96, (5, 5), (32, 32)),  # conv14: 5x5, dilation 32x32
+                # Layer 9-14: Time-frequency dilated convolutions (isotropic kept)
+                (96, (5, 5), (1, 1), (2, 2)),  # conv9
+                (96, (5, 5), (2, 2), (4, 4)),  # conv10
+                (96, (5, 5), (4, 4), (8, 8)),  # conv11
+                (96, (5, 5), (8, 8), (16, 16)),  # conv12
+                (96, (5, 5), (16, 16), (32, 32)),  # conv13
+                (96, (5, 5), (32, 32), (64, 64)),  # conv14
 
                 # Layer 15: Output projection
-                (8, (1, 1), (1, 1))  # conv15: 1x1, 8 filters (output channels)
+                (8, (1, 1), (1, 1), (0, 0)),  # conv15
         ]
 
         # Build the layers
@@ -56,12 +63,12 @@ class AudioDilatedCNN(nn.Module):
 
         in_channels = 2  # Input: real and imaginary parts of STFT
 
-        for i, (out_channels, kernel_size, dilation) in enumerate(layer_specs):
-            # Calculate padding to maintain spatial dimensions (equivalent to 'SAME' padding)
-            if i < len(layer_specs) - 1:  # All layers except the last
-                padding = _calculate_same_padding(kernel_size, dilation)
-            else:  # Last layer (1x1 conv) doesn't need padding
-                padding = (0, 0)
+        for i, (out_channels, kernel_size, dilation, padding) in enumerate(layer_specs):
+            if i < len(layer_specs) - 1:
+                print(f"Layer {i + 1}: kernel={kernel_size}, dilation={dilation}, padding={padding}")
+            else:
+                # last layer already has (0,0) padding in spec; keep the log consistent
+                print(f"Layer {i + 1}: kernel={kernel_size}, dilation={dilation}, padding={padding}")
 
             conv = nn.Conv2d(
                     in_channels=in_channels,
@@ -74,7 +81,7 @@ class AudioDilatedCNN(nn.Module):
 
             self.conv_layers.append(conv)
 
-            # Batch normalization
+            # Batch normalization after all but the last conv
             if i < len(layer_specs) - 1:
                 self.batch_norms.append(nn.BatchNorm2d(out_channels))
 
@@ -87,7 +94,6 @@ class AudioDilatedCNN(nn.Module):
         self.apply(init_weights)
 
 
-
     def forward(self, x):
         """
         Args:
@@ -97,18 +103,20 @@ class AudioDilatedCNN(nn.Module):
             Audio features of shape [batch, 8, freq_bins, time_frames]
         """
         # Transpose to Conv2d format: [batch, freq, time, channels] -> [batch, channels, freq, time]
+        # print(f"Input shape: {x.shape}")
         x = x.permute(0, 3, 1, 2)  # [batch, 2, 257, 298]
+        # print(f"Input shape after permute: {x.shape}")
 
         # Process through all conv layers
         for i, (conv, bn) in enumerate(zip(self.conv_layers[:-1], self.batch_norms)):
             x = conv(x)
             x = bn(x)
-            x = F.relu(x)
+            x = F.leaky_relu(x, negative_slope=LEAKY_SLOPE)
 
         # Last layer + BatchNorm + ReLU (to match original TF implementation)
         x = self.conv_layers[-1](x)
         x = self.final_bn(x)
-        x = F.relu(x)
+        x = F.leaky_relu(x, negative_slope=LEAKY_SLOPE)
 
         return x
 
@@ -138,3 +146,4 @@ def calculate_receptive_field(layer_specs):
         rf_w += (kernel_size[1] - 1) * dilation[1]
 
         print(f"Layer {i + 1}: Receptive field = {rf_h}×{rf_w}")
+

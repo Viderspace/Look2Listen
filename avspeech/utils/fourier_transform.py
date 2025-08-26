@@ -59,3 +59,5 @@ def stft_to_audio(stft_compressed: torch.Tensor, n_fft=512, hop_length=160, win_
         audio = audio / max_val * 0.99  # Scale to 99% to ensure no clipping
 
     return audio
+
+

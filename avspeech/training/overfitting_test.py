@@ -19,7 +19,7 @@ def setup():
         },
         num_epochs=100,
         learning_rate=1e-4,
-        min_lr=1e-5,
+        min_lr=2.5e-5,
             # learning_rate=6e-5,
             # min_lr=3e-5,
         batch_size=4,
@@ -43,6 +43,7 @@ def setup():
             probabilities=phase.probabilities,
             batch_size=4,
             num_workers=1,
+            seed=42
     )
     print(f"{data_loader.sampler.dataset_sizes=}")
     print(f"{len(data_loader.train_dataset)=}")

@@ -5,25 +5,32 @@ import torch.nn.functional as F
 
 from avspeech.model.audio_model import AudioDilatedCNN
 from avspeech.model.visual_model import VisualDilatedCNN, upsample_visual_features
+LEAKY_SLOPE = 0.2
 
 
 def init_weights(m):
-    # He for ReLU layers; Xavier for the final linear head
     if isinstance(m, (nn.Conv1d, nn.Conv2d, nn.Linear)):
-        if isinstance(m, nn.Linear) and getattr(m, "_is_output_head", False):
-            nn.init.xavier_uniform_(m.weight)
-            if m.bias is not None:
-                nn.init.zeros_(m.bias)
-        else:
-            nn.init.kaiming_normal_(m.weight, nonlinearity='relu')
-            if m.bias is not None:
-                nn.init.zeros_(m.bias)
-    elif isinstance(m, nn.LSTM):
-        # Optional: set forget-gate bias = 1 for stability
-        for name, p in m.named_parameters():
-            if 'bias' in name:
-                hidden = m.hidden_size
-                p.data[hidden:2*hidden].fill_(1.0)
+        nn.init.kaiming_normal_(m.weight, a=LEAKY_SLOPE, nonlinearity='leaky_relu')
+        if m.bias is not None:
+            nn.init.zeros_(m.bias)
+
+# def init_weights(m):
+#     # He for ReLU layers; Xavier for the final linear head
+#     if isinstance(m, (nn.Conv1d, nn.Conv2d, nn.Linear)):
+#         if isinstance(m, nn.Linear) and getattr(m, "_is_output_head", False):
+#             nn.init.xavier_uniform_(m.weight)
+#             if m.bias is not None:
+#                 nn.init.zeros_(m.bias)
+#         else:
+#             nn.init.kaiming_normal_(m.weight, a=LEAKY_SLOPE, nonlinearity='leaky_relu')
+#             if m.bias is not None:
+#                 nn.init.zeros_(m.bias)
+#     elif isinstance(m, nn.LSTM):
+#         # Optional: set forget-gate bias = 1 for stability
+#         for name, p in m.named_parameters():
+#             if 'bias' in name:
+#                 hidden = m.hidden_size
+#                 p.data[hidden:2*hidden].fill_(1.0)
 
 class AudioVisualModel(nn.Module):
 
@@ -63,6 +70,13 @@ class AudioVisualModel(nn.Module):
         self.fc3 = nn.Linear(600, 600)  # added hidden layer to match original 3×600
         self.fc4 = nn.Linear(600, 257 * 2)  # 257 freq × 2 (real/imag) – output layer (linear)
 
+        self.bn1 = nn.BatchNorm1d(298)
+        self.bn2 = nn.BatchNorm1d(298)
+        self.bn3 = nn.BatchNorm1d(298)
+        self.drop1 = nn.Dropout(0.2)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.2)
+
         # Mark final head for Xavier init
         self.fc4._is_output_head = True
 
@@ -78,7 +92,7 @@ class AudioVisualModel(nn.Module):
         batch_size = audio_input.size(0)
 
         # Process both streams
-        audio_features = self.audio_cnn(audio_input)  # [batch, 8, 257, 298]
+        audio_features = self.audio_cnn(audio_input)
         visual_features = self.visual_cnn(visual_input)  # [batch, 256, 75]
 
         # Upsample visual features
@@ -91,62 +105,33 @@ class AudioVisualModel(nn.Module):
         # Reshape visual features
         visual_features = visual_features.transpose(1, 2)  # [batch, 298, 256]
 
-        # Concatenate
+        # Concatenate along feature dim
         fused_features = torch.cat([audio_features, visual_features], dim=2)  # [batch, 298, 2312]
 
-        # BiLSTM processing
+        # BiLSTM
         lstm_out, _ = self.blstm(fused_features)  # [batch, 298, 800]
-
-        # # FC layers
-        # # Reshape for batch norm: [batch, 298, 800] -> [batch*298, 800]
-        # fc_input = lstm_out.reshape(-1, 800)
-        #
-        # # FC1
-        # fc1_out = self.fc1(fc_input)  # [batch*298, 600]
-        # fc1_out = self.bn1(fc1_out)
-        # fc1_out = F.relu(fc1_out)
-        #
-        # # FC2
-        # fc2_out = self.fc2(fc1_out)  # [batch*298, 600]
-        # fc2_out = self.bn2(fc2_out)
-        # fc2_out = F.relu(fc2_out)
-        #
-        # # FC3 (no batch norm or activation)
-        # fc3_out = self.fc3(fc2_out)  # [batch*298, 514]
-
-        # FC layers
-        # Reshape for FC stack (BN removed): [batch, 298, 400] -> [batch*298, 400]
-        # Sum-merge bidirectional outputs to match TF (merge_mode='sum')
+        # Sum-merge directions → [batch, 298, 400]
         fwd, bwd = torch.chunk(lstm_out, 2, dim=2)
-        lstm_out = fwd + bwd  # [batch, 298, 400]
+        x = fwd + bwd  # [batch, 298, 400]
 
-        # Reshape for FC stack: [batch, 298, 400] -> [batch*298, 400]
-        fc_input = lstm_out.reshape(-1, 400)
+        # ---- FC blocks with Leaky → BN(time) → Dropout ----
+        # BN1d expects (N, C, L). Here we use C = time = 298, L = feature.
+        x = F.leaky_relu(self.fc1(x), negative_slope=LEAKY_SLOPE)  # [B, 298, 600]
+        # x = self.drop1(x)
 
-        # FC1
-        fc1_out = self.fc1(fc_input)  # [batch*298, 600]
-        fc1_out = F.relu(fc1_out)
+        x = F.leaky_relu(self.fc2(x), negative_slope=LEAKY_SLOPE)  # [B, 298, 600]
+        # x = self.drop2(x)
 
-        # FC2
-        fc2_out = self.fc2(fc1_out)  # [batch*298, 600]
-        fc2_out = F.relu(fc2_out)
+        x = F.leaky_relu(self.fc3(x), negative_slope=LEAKY_SLOPE)  # [B, 298, 600]
+        # x = self.drop3(x)
 
-        # FC3 (added third hidden layer, no BatchNorm)
-        fc3_out = self.fc3(fc2_out)  # [batch*298, 600]
-        fc3_out = F.relu(fc3_out)
+        # Output head
+        x = self.fc4(x)  # [B, 298, 514]
+        x = torch.tanh(x)  # [-1, 1] bounded mask
 
-        # Output layer (linear mask; no activation)
-        fc3_out = self.fc4(fc3_out)  # [batch*298, 514]
-
-
-
-        # Reshape back to [batch, 298, 257, 2]
-        output = fc3_out.reshape(batch_size, 298, 257, 2)
-
-        # Transpose to match input format [batch, 257, 298, 2]
-        output = output.permute(0, 2, 1, 3)
-
-        return output
-
+        # Reshape back to [batch, 257, 298, 2]
+        x = x.reshape(batch_size, 298, 257, 2)
+        x = x.permute(0, 2, 1, 3)
+        return x
 
 

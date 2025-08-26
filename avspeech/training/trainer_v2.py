@@ -128,6 +128,7 @@ class AVSpeechTrainer:
 
     def train_epoch(self, epoch: int) -> float:
         """One epoch of training with running-average loss in tqdm."""
+        self.model.train()
         epoch_loss = 0.0
         num_batches = 0
 
@@ -140,13 +141,15 @@ class AVSpeechTrainer:
             # audio_input, visual_input, target = batch
             # Move to device
 
-            audio_input =batch['mixture'].to(self.device)
-            visual_input = batch['face'].to(self.device)
-            target = batch['clean'].to(self.device)
+            mixture = batch['mixture'].to(self.device)
+            clean = batch['clean'].to(self.device)
+            face = batch['face'].to(self.device)
 
             # Forward pass
-            output = self.model(audio_input, visual_input)
-            loss = self.criterion(output, target)
+            self.optimizer.zero_grad()
+            masks = self.model(mixture, face)
+            separated = mixture * masks
+            loss = self.criterion(separated, clean)
 
             # Backward pass
             self.optimizer.zero_grad()

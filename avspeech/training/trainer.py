@@ -71,7 +71,7 @@ class Trainer:
         accumulated_loss = 0
         how_many_batches_done = 0
 
-        tqdm_bar = tqdm(train_loader, desc=f"Epoch {epoch + 1}/{self.phase.num_epochs}")
+        tqdm_bar = tqdm(train_loader, desc=f"Epoch {epoch}/{self.phase.num_epochs}")
 
         for batch in tqdm_bar:
             # Freeze early layers only on the first epoch of 'warm start' phase
@@ -85,7 +85,8 @@ class Trainer:
             how_many_batches_done += 1
 
             running_avg = accumulated_loss / max(1, how_many_batches_done)
-            tqdm_bar.set_postfix(recent_loss=f"{batch_loss:.4f}", current_avg=f"{running_avg:.4f}")
+            recent_trend = (" ↑" if (batch_loss - running_avg >= 0) else " ↓")+ f" {batch_loss - running_avg:.4f}"
+            tqdm_bar.set_postfix(loss_avg=f"{running_avg:.5f}", recent_trend=recent_trend, step=f"{self.global_step}/{self.phase.num_epochs * len(train_loader)}")
 
             # Log every 100 steps
             # if self.global_step % 500 == 0:
@@ -104,6 +105,7 @@ class Trainer:
         self.optimizer.zero_grad()
         masks = self.model(mixture, face)
         separated = mixture * masks
+
         loss = self.criterion(separated, clean)
 
         # Backward pass

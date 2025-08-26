@@ -455,3 +455,5 @@ def slice_stft_features(
 ) -> List[torch.Tensor]:
     """Legacy function for backward compatibility."""
     return chunk_stft_features(features, frames_per_chunk)
+
+

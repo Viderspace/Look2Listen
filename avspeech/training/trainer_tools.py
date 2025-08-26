@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Dict, Optional, Iterator, Any
 
-from coremltools.converters.mil.testing_reqs import torch
+import torch
 from torch.optim import Optimizer
 # from torch.utils.tensorboard import SummaryWriter
 from torch.optim.lr_scheduler import CosineAnnealingLR, LRScheduler
@@ -151,7 +151,7 @@ def validate(device : torch.device,
              verbose: bool = True) -> [str, float]:
     """Evaluate model on specific validation set"""
     if not data_loader:
-        _print_verbose(f"No validation data loader provided for {sample_type}", verbose)
+        # _print_verbose(f"No validation data loader provided for {sample_type}", verbose)
         return {}
 
     model.eval()

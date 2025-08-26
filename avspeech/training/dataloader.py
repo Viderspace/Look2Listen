@@ -120,7 +120,7 @@ class MixedDataLoader:
 
     def get_val_loader(self, sample_type: SampleT) -> Optional[DataLoader]:
         if sample_type not in self.val_datasets:
-            print(f"Validation dataset for {sample_type} not found.")
+            # print(f"Validation dataset for {sample_type} not found.")
             return None
 
         return DataLoader(
