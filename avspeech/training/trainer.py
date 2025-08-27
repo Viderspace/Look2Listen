@@ -1,6 +1,6 @@
 # avspeech/training/trainer.py
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional, Tuple
 
 import torch
 import torch.nn as nn
@@ -31,6 +31,7 @@ class Trainer:
         device: torch.device,
         checkpoint_dir: Path,
         log_dir: Path,
+        sdri_update_interval: int = 200
     ):
         """Initialize trainer with model, phase config, and paths"""
         self.model = model.to(device)
@@ -39,6 +40,7 @@ class Trainer:
         self.device = device
         self.checkpoint_dir = checkpoint_dir
         self.log_dir = log_dir
+        self.sdri_update_interval = sdri_update_interval
 
         self.criterion = ComplexCompressedLoss()
         self.optimizer = tools.build_optimizer(self.model.parameters(), phase.learning_rate)
@@ -88,7 +90,10 @@ class Trainer:
             if epoch == self.start_epoch and self.phase.name == PhaseName.WARM_START:
                 tools.freeze_early_layers_on_warm_start(how_many_batches_done, self.model, len(train_loader) // 2)
 
-            batch_loss = self.train_batch(batch)
+            batch_loss, sdri = self.train_batch(batch)
+
+            if sdri is not None:
+                tqdm_bar.write(f"Step {self.global_step}: SDRi={sdri:.4f}")
 
             # Track metrics
             accumulated_loss += batch_loss
@@ -102,10 +107,11 @@ class Trainer:
             tqdm_bar.update(1)
             tqdm_bar.set_postfix(lr=lr_str, loss_avg=f"{running_avg:.5f}", recent_trend=recent_trend, step=f"{self.global_step}/{total_updates}")
 
+
         return {"loss": accumulated_loss / how_many_batches_done}
 
 
-    def train_batch(self, batch : Dict[str, Any]) -> float:
+    def train_batch(self, batch : Dict[str, Any]) -> Tuple[float, Optional[float]]:
         # Move to device
         mixture = batch["mixture"].to(self.device)
         clean = batch["clean"].to(self.device)
@@ -127,7 +133,11 @@ class Trainer:
         self.scheduler.step()
         self.global_step += 1
 
-        return loss.item()
+        #Occasionally compute SDRi for monitoring
+        sdri = tools.evaluate_model_SDRI(separated, clean, mixture) if self.global_step % self.sdri_update_interval == 0 else None
+
+
+        return loss.item(), sdri
 
 
 # =================     Utilities / Wrappers    ===========================

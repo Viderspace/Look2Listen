@@ -55,7 +55,9 @@ class VisualDilatedCNN(nn.Module):
             [batch, 256, 75] visual features
         """
         # Transpose for Conv1d
-        x = x.transpose(1, 2)  # [batch, 1024, 75]
+        x = x.transpose(1, 2)  # [batch, 512, 75]
+
+        assert x.shape == (x.shape[0], 512, 75), f"Expected input shape [batch, 512, 75], got {x.shape}"
 
         # Apply convolutions
         for conv, bn in zip(self.conv_layers, self.batch_norms):
@@ -66,21 +68,22 @@ class VisualDilatedCNN(nn.Module):
         return x
 
 
+def upsample_visual_features(x, target_length=298):
+    return F.interpolate(x, size=target_length, mode='nearest')
 
-
-def upsample_visual_features(visual_features, target_length=298):
-    """
-    Upsample visual features from 25Hz to 100Hz using nearest neighbor
-
-    Args:
-        visual_features: [batch, 256, 75] at 25Hz
-        target_length: 298 (for 3 seconds at 100Hz)
-
-    Returns:
-        [batch, 256, 298] upsampled features
-    """
-    # Better version - no unnecessary unpacking
-    visual_features = visual_features.unsqueeze(-1)
-    upsampled = F.interpolate(visual_features, size=(target_length, 1), mode='nearest')
-    return upsampled.squeeze(-1)
+# def upsample_visual_features(visual_features, target_length=298):
+#     """
+#     Upsample visual features from 25Hz to 100Hz using nearest neighbor
+#
+#     Args:
+#         visual_features: [batch, 256, 75] at 25Hz
+#         target_length: 298 (for 3 seconds at 100Hz)
+#
+#     Returns:
+#         [batch, 256, 298] upsampled features
+#     """
+#     # Better version - no unnecessary unpacking
+#     visual_features = visual_features.unsqueeze(-1)
+#     upsampled = F.interpolate(visual_features, size=(target_length, 1), mode='nearest')
+#     return upsampled.squeeze(-1)
 

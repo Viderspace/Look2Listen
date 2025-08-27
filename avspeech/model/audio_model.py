@@ -30,7 +30,6 @@ class AudioDilatedCNN(nn.Module):
         # NOTE: To keep time-growth while using H=freq, W=time, we:
         #   1) swap the first two kernels (7x1) <-> (1x7)
         #   2) flip early dilations (dH,dW): (2,1)->(1,2), (4,1)->(1,4), ...
-        # Pads are hard-coded for SAME output size.
         # Format: (out_channels, kernel_size, dilation, padding)
         layer_specs = [
                 # Layer 1-2: Initial spatial processing (kernels swapped)
@@ -76,7 +75,7 @@ class AudioDilatedCNN(nn.Module):
                     kernel_size=kernel_size,
                     dilation=dilation,
                     padding=padding,
-                    bias=False  # Bias is handled by BatchNorm
+                    # bias=False  # Bias is handled by BatchNorm
             )
 
             self.conv_layers.append(conv)
@@ -117,7 +116,7 @@ class AudioDilatedCNN(nn.Module):
         x = self.conv_layers[-1](x)
         x = self.final_bn(x)
         x = F.leaky_relu(x, negative_slope=LEAKY_SLOPE)
-
+        assert x.shape == (x.size(0), 8, 257, 298), f"Unexpected output shape: {x.shape}"
         return x
 
 

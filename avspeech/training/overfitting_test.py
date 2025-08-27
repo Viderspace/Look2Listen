@@ -6,6 +6,7 @@ from avspeech.training.training_phase import PhaseName
 from avspeech.utils.structs import SampleT
 
 path_to_samples = "/Users/jonatanvider/Desktop/Look2Listen_Stuff/overfitting_samples"
+path_to_demi_eval = "/Users/jonatanvider/Desktop/Look2Listen_Stuff/overfitting_samples_4"
 
 
 def setup():
@@ -20,7 +21,7 @@ def setup():
         num_epochs=100,
         learning_rate=3e-4,
         min_lr=2.5e-5,
-        warmup_fraction=0.1,
+        warmup_fraction=0.01,
             # learning_rate=6e-5,
             # min_lr=3e-5,
         batch_size=4,
@@ -38,9 +39,10 @@ def setup():
     from avspeech.training.dataloader import MixedDataLoader
 
     paths = {SampleT.S2_NOISE: Path(path_to_samples)}
+    val_paths = {SampleT.S2_NOISE: Path(path_to_demi_eval)}
     data_loader = MixedDataLoader(
             train_paths=paths,
-            val_paths={},
+            val_paths=val_paths,
             probabilities=phase.probabilities,
             batch_size=4,
             num_workers=1,

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, Optional, Iterator, Any
+from typing import Dict, Optional, Iterator, Any, List
 
 import torch
 from torch.optim import Optimizer
@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader
 from avspeech.training.dataloader import MixedDataLoader
 from avspeech.training.loss import ComplexCompressedLoss
 from avspeech.utils.structs import SampleT
+import avspeech.evaluation.metrics as metrics
 from avspeech.training.training_phase import TrainingPhase
 
 
@@ -124,7 +125,7 @@ def build_scheduler(
 
 
     # linear warmup from 1e-2 * base_lr → base_lr
-    warmup  = LinearLR(optimizer, start_factor=1e-3, end_factor=1.0, total_iters=w)
+    warmup  = LinearLR(optimizer, start_factor=0.1, end_factor=1.0, total_iters=w)
     cosine  = CosineAnnealingLR(optimizer, T_max=total - w, eta_min=phase.min_lr)
     sched   = SequentialLR(optimizer, [warmup, cosine], milestones=[w])
 
@@ -199,9 +200,8 @@ def run_validation(device : torch.device,
         data_loader = data_manager.get_val_loader(sample_type)
         metrics = validate(device, model, data_loader, sample_type, verbose)
         if metrics:
-            print(f"  Val {sample_type.value}: loss={metrics['loss']:.4f}")
+            print(f"  Val {sample_type.value}: loss={metrics['loss']:.4f},  SDRi={metrics['sdri']:.4f}", flush=True)
             # log_metrics({f"val/{sample_type.value}": metrics["loss"]}, epoch, log_dir)
-
 
 
 
@@ -222,6 +222,7 @@ def validate(device : torch.device,
     criterion = ComplexCompressedLoss()
     total_loss = 0
     num_batches = 0
+    total_sdri = 0.0
 
     with torch.no_grad():
         for batch in data_loader:
@@ -233,7 +234,37 @@ def validate(device : torch.device,
             separated = mixture * masks
             loss = criterion(separated, clean)
 
+            total_sdri += evaluate_model_SDRI(separated, clean, mixture)
             total_loss += loss.item()
             num_batches += 1
 
-    return {"loss": total_loss / num_batches if num_batches > 0 else 0}
+    return {"loss": total_loss / num_batches if num_batches > 0 else 0, "sdri": total_sdri / num_batches if num_batches > 0 else 0.0}
+
+
+@torch.no_grad()
+def evaluate_model_SDRI(estimated_batch : torch.Tensor, gt_batch : torch.Tensor, mixture_batch : torch.Tensor ) -> float:
+    """
+    tensor shape: (Batch, C, T)
+
+    """
+    from avspeech.utils.fourier_transform import stft_to_audio
+
+    sum_sdri = 0.0
+    # print(f"{estimated_batch.shape=}, {gt_batch.shape=}")
+    batch_size = estimated_batch.shape[0]
+
+    for i in range(batch_size):
+        estimated_sample = estimated_batch[i]
+        clean_sample = gt_batch[i]
+        mixture_sample = mixture_batch[i]
+
+        estimated_wav = stft_to_audio(estimated_sample)
+        clean_wav = stft_to_audio(clean_sample)
+        mixture_wav = stft_to_audio(mixture_sample)
+        sum_sdri += metrics.sdr_improvement(estimated_wav, clean_wav, mixture_wav)
+
+
+
+    return sum_sdri / batch_size if batch_size > 0 else 0.0
+
+

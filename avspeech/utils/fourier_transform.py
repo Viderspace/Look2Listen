@@ -26,6 +26,10 @@ def stft_to_audio(stft_compressed: torch.Tensor, n_fft=512, hop_length=160, win_
     # Convert to complex tensor
     stft_complex = torch.complex(real_decompressed, imag_decompressed)
 
+    #if device is mps, move to cpu for istft
+    if stft_complex.device.type == 'mps':
+        stft_complex = stft_complex.to('cpu')
+
     # Create window
     window = torch.hann_window(win_length, device=stft_complex.device)
 
@@ -42,9 +46,9 @@ def stft_to_audio(stft_compressed: torch.Tensor, n_fft=512, hop_length=160, win_
             onesided=True,
             length=None
     )
-
-    print(f"DEBUG: Audio output shape: {audio.shape}")
-    print(f"DEBUG: Audio range: [{audio.min():.4f}, {audio.max():.4f}]")
+    #
+    # print(f"DEBUG: Audio output shape: {audio.shape}")
+    # print(f"DEBUG: Audio range: [{audio.min():.4f}, {audio.max():.4f}]")
 
     # Check for any issues
     if torch.isnan(audio).any():
@@ -54,10 +58,7 @@ def stft_to_audio(stft_compressed: torch.Tensor, n_fft=512, hop_length=160, win_
 
     # Normalize audio to prevent clipping
     max_val = torch.abs(audio).max()
-    if max_val > 1.0:
-        print(f"WARNING: Audio peak {max_val:.4f} > 1.0, normalizing to prevent clipping")
-        audio = audio / max_val * 0.99  # Scale to 99% to ensure no clipping
 
-    return audio
+    return audio / max_val if max_val > 1.0 else audio
 
 
