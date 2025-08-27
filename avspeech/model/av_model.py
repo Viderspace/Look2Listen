@@ -121,13 +121,13 @@ class AudioVisualModel(nn.Module):
         # ---- FC blocks with Leaky → BN(time) → Dropout ----
         # BN1d expects (N, C, L). Here we use C = time = 298, L = feature.
         x = F.leaky_relu(self.fc1(x), negative_slope=LEAKY_SLOPE)  # [B, 298, 600]
-        # x = self.drop1(x)
+        x = self.drop1(x)
 
         x = F.leaky_relu(self.fc2(x), negative_slope=LEAKY_SLOPE)  # [B, 298, 600]
-        # x = self.drop2(x)
+        x = self.drop2(x)
 
         # x = F.leaky_relu(self.fc3(x), negative_slope=LEAKY_SLOPE)  # [B, 298, 600]
-        # x = self.drop3(x)
+        x = self.drop3(x)
 
         # Output head
         x = self.fc3(x)  # [B, 298, 257 * 2]
