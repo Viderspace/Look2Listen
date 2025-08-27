@@ -110,8 +110,8 @@ class LookingToListenInference:
                 length=None
         )
 
-        self.print_verbose(f"DEBUG: Audio output shape: {audio.shape}")
-        self.print_verbose(f"DEBUG: Audio range: [{audio.min():.4f}, {audio.max():.4f}]")
+        # self.print_verbose(f"DEBUG: Audio output shape: {audio.shape}")
+        # self.print_verbose(f"DEBUG: Audio range: [{audio.min():.4f}, {audio.max():.4f}]")
 
         # Check for any issues
         if torch.isnan(audio).any():

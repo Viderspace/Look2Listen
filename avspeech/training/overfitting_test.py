@@ -39,7 +39,8 @@ def setup():
     from avspeech.training.dataloader import MixedDataLoader
 
     paths = {SampleT.S2_NOISE: Path(path_to_samples)}
-    val_paths = {SampleT.S2_NOISE: Path(path_to_demi_eval)}
+    val_paths = {SampleT.S2_NOISE: Path(path_to_demi_eval),
+                 SampleT.S2_CLEAN: Path(path_to_demi_eval)}
     data_loader = MixedDataLoader(
             train_paths=paths,
             val_paths=val_paths,
@@ -75,7 +76,8 @@ def setup():
             data_loader=data_loader,
             device=DEVICE,
             log_dir= Path("/Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/avspeech/training/overfit_artifacts"),
-            checkpoint_dir=Path("/Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/avspeech/training/overfit_artifacts")
+            checkpoint_dir=Path("/Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/avspeech/training/overfit_artifacts"),
+            console_logs_update_interval=10
 
     )
     print(f"✓ Trainer initialized")

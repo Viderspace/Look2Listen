@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, Optional, Iterator, Any, List
+from typing import Dict, Optional, Iterator, Any, List, Tuple
 
 import torch
 from torch.optim import Optimizer
@@ -76,25 +76,22 @@ def save_checkpoint(epoch : int,
     torch.save(checkpoint, latest_path)
 
 
-# def build_optimizer(parameters : Iterator[Any] , learning_rate: float) -> Optimizer:
-#     """Create Adam optimizer for the model"""
-#     optimizer = torch.optim.Adam(parameters, lr=learning_rate)
-#     print("param groups:", len(optimizer.param_groups))
-#     for i, g in enumerate(optimizer.param_groups):
-#         print(f"  pg{i}: lr={g['lr']:.2e}, wd={g.get('weight_decay', 0)}")
-#
-#     return optimizer
-def build_optimizer(parameters: Iterator[Any], learning_rate: float,
-                    weight_decay: float = 0.01,
-                    betas=(0.9, 0.999), eps: float = 1e-8) -> Optimizer:
-    """Create AdamW optimizer (single param group)."""
-    return torch.optim.AdamW(
-        parameters,
-        lr=learning_rate,
-        betas=betas,
-        eps=eps,
-        weight_decay=weight_decay
-    )
+def build_optimizer(parameters : Iterator[Any] , learning_rate: float) -> Optimizer:
+    """Create Adam optimizer for the model"""
+    optimizer = torch.optim.Adam(parameters, lr=learning_rate)
+    return optimizer
+
+# def build_optimizer(parameters: Iterator[Any], learning_rate: float,
+#                     weight_decay: float = 0.01,
+#                     betas=(0.9, 0.999), eps: float = 1e-8) -> Optimizer:
+#     """Create AdamW optimizer (single param group)."""
+#     return torch.optim.AdamW(
+#         parameters,
+#         lr=learning_rate,
+#         betas=betas,
+#         eps=eps,
+#         weight_decay=weight_decay
+#     )
 
 
 
@@ -267,4 +264,53 @@ def evaluate_model_SDRI(estimated_batch : torch.Tensor, gt_batch : torch.Tensor,
 
     return sum_sdri / batch_size if batch_size > 0 else 0.0
 
+
+def log_sdri_on_test_batch(test_batches: Dict[str, torch.Tensor], model: torch.nn.Module) -> str:
+    """Evaluate SDRi on a fixed set of test batches."""
+    with torch.no_grad():
+        mixture, face, clean = test_batches["mixture"], test_batches["face"], test_batches["clean"]
+        mask = model(mixture, face)
+        separated = mixture * mask
+        sdri = evaluate_model_SDRI(separated, clean, mixture)
+        return f" SDRi={sdri:.4f} ,"
+
+
+
+
+
+
+def log_grad_and_masks(model: torch.nn.Module, masks: torch.Tensor, step: Optional[int]=None) -> str:
+    """Return a short string with grad L2 norm and mask stats."""
+    with torch.no_grad():
+        g2 = 0.0
+        for p in model.parameters():
+            if p.grad is not None:
+                g2 += p.grad.pow(2).sum().item()
+        grad_l2 = g2 ** 0.5
+        m = masks.detach()
+        s = f"grad_l2={grad_l2:.4g} | mask[min={m.min().item():.3f}, mean={m.mean().item():.3f}, max={m.max().item():.3f}]"
+        return f"step={step} | {s}" if step is not None else s
+
+
+def grab_constant_batch(device: torch.device, data_loader: MixedDataLoader) -> Dict[str, torch.Tensor]:
+    s2n_batch = next(iter(data_loader.get_val_loader(SampleT.S2_NOISE)))
+    s2c_batch = next(iter(data_loader.get_val_loader(SampleT.S2_CLEAN)))
+
+    s2c_mixture = s2c_batch["mixture"].to(device)
+    s2n_mixture = s2n_batch["mixture"].to(device)
+    mixture = torch.cat([s2c_mixture, s2n_mixture], dim=0)
+    print(f"mixture shape: {mixture.shape}")
+
+    s2c_clean = s2c_batch["clean"].to(device)
+    s2n_clean = s2n_batch["clean"].to(device)
+    clean = torch.cat([s2c_clean, s2n_clean], dim=0)
+
+
+    s2c_face = s2c_batch["face"].to(device)
+    s2n_face = s2n_batch["face"].to(device)
+    face = torch.cat([s2c_face, s2n_face], dim=0)
+
+
+
+    return {"mixture": mixture, "face": face, "clean": clean}
 

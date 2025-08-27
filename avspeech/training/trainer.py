@@ -8,6 +8,7 @@ from tqdm import tqdm
 
 from avspeech.training.dataloader import MixedDataLoader
 from avspeech.training.loss import ComplexCompressedLoss
+from avspeech.utils.structs import SampleT
 from avspeech.training.training_phase import PhaseName, TrainingPhase
 import avspeech.training.trainer_tools as tools
 
@@ -31,7 +32,7 @@ class Trainer:
         device: torch.device,
         checkpoint_dir: Path,
         log_dir: Path,
-        sdri_update_interval: int = 200
+        console_logs_update_interval: int = 200
     ):
         """Initialize trainer with model, phase config, and paths"""
         self.model = model.to(device)
@@ -40,7 +41,7 @@ class Trainer:
         self.device = device
         self.checkpoint_dir = checkpoint_dir
         self.log_dir = log_dir
-        self.sdri_update_interval = sdri_update_interval
+        self.console_logs_update_interval = console_logs_update_interval
 
         self.criterion = ComplexCompressedLoss()
         self.optimizer = tools.build_optimizer(self.model.parameters(), phase.learning_rate)
@@ -49,8 +50,12 @@ class Trainer:
         self.start_epoch = 1
         self.global_step = 0
 
+        self.test_batches: Dict[str,torch.Tensor] = tools.grab_constant_batch(device, data_loader)
+
         if phase.resume_checkpoint:
             self._load_checkpoint(phase.resume_checkpoint)
+
+
 
 
     def train(self) -> None:
@@ -73,6 +78,8 @@ class Trainer:
         print("Training complete")
 
 
+
+
     def train_epoch(self, epoch: int) -> Dict[str, float]:
         """Run one training epoch and return average metrics"""
         self.model.train()
@@ -90,10 +97,10 @@ class Trainer:
             if epoch == self.start_epoch and self.phase.name == PhaseName.WARM_START:
                 tools.freeze_early_layers_on_warm_start(how_many_batches_done, self.model, len(train_loader) // 2)
 
-            batch_loss, sdri = self.train_batch(batch)
+            batch_loss, stats = self.train_batch(batch)
 
-            if sdri is not None:
-                tqdm_bar.write(f"Step {self.global_step}: SDRi={sdri:.4f}")
+            if stats is not None:
+                tqdm_bar.write(f"Step {self.global_step}: {stats}")
 
             # Track metrics
             accumulated_loss += batch_loss
@@ -111,8 +118,9 @@ class Trainer:
         return {"loss": accumulated_loss / how_many_batches_done}
 
 
-    def train_batch(self, batch : Dict[str, Any]) -> Tuple[float, Optional[float]]:
+    def train_batch(self, batch : Dict[str, Any]) -> Tuple[float, Optional[str]]:
         # Move to device
+        self.model.train()
         mixture = batch["mixture"].to(self.device)
         clean = batch["clean"].to(self.device)
         face = batch["face"].to(self.device)
@@ -134,10 +142,15 @@ class Trainer:
         self.global_step += 1
 
         #Occasionally compute SDRi for monitoring
-        sdri = tools.evaluate_model_SDRI(separated, clean, mixture) if self.global_step % self.sdri_update_interval == 0 else None
+        stats : Optional[str] = None
+        if self.global_step % self.console_logs_update_interval == 0:
+            self.model.eval()
+            stats = tools.log_sdri_on_test_batch(self.test_batches, self.model)
+            stats += tools.log_grad_and_masks(self.model, masks)
 
 
-        return loss.item(), sdri
+
+        return loss.item(), stats
 
 
 # =================     Utilities / Wrappers    ===========================

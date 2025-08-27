@@ -2,8 +2,6 @@
 import torch
 import numpy as np
 from typing import Optional, Union
-from pystoi import stoi as compute_stoi
-from pesq import pesq as compute_pesq
 
 
 def sdr(estimated: torch.Tensor, target: torch.Tensor) -> float:
@@ -52,6 +50,8 @@ def si_sdr(estimated: torch.Tensor, target: torch.Tensor) -> float:
 def pesq(estimated: Union[torch.Tensor, np.ndarray],
          target: Union[torch.Tensor, np.ndarray],
          sample_rate: int = 16000) -> Optional[float]:
+    from pesq import pesq as compute_pesq
+
     """PESQ - requires external library"""
     est_np = estimated.cpu().numpy() if isinstance(estimated, torch.Tensor) else estimated
     tgt_np = target.cpu().numpy() if isinstance(target, torch.Tensor) else target
@@ -62,6 +62,8 @@ def pesq(estimated: Union[torch.Tensor, np.ndarray],
 def stoi(estimated: Union[torch.Tensor, np.ndarray],
          target: Union[torch.Tensor, np.ndarray],
          sample_rate: int = 16000) -> Optional[float]:
+    from pystoi import stoi as compute_stoi
+
     est_np = estimated.cpu().numpy() if isinstance(estimated, torch.Tensor) else estimated
     tgt_np = target.cpu().numpy() if isinstance(target, torch.Tensor) else target
     return compute_stoi(tgt_np, est_np, sample_rate, extended=False)
