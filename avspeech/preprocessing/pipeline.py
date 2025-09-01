@@ -7,12 +7,13 @@ from pathlib import Path
 from typing import List, Tuple
 import torch
 
-
+from avspeech import FaceEmbedder
 from avspeech.preprocessing.clips_loader import ClipData
 from avspeech.preprocessing.export import save_processed_clip
 
 from avspeech.utils.noise_mixer import NoiseMixer
-from avspeech.utils.face_embedder import FaceEmbedder
+# from avspeech.utils.face_embedder import FaceEmbedder
+from avspeech.utils.FaceManager import FaceManager
 from avspeech.utils.audio import process_audio_for_training, process_audio_for_inference
 from avspeech.utils.video import process_video_for_training, process_video_for_inference
 from avspeech.utils.structs import AudioChunk, Sample
@@ -22,7 +23,9 @@ from avspeech.utils.structs import AudioChunk, Sample
 
 # Expected tensor shapes for validation
 AUDIO_CHUNK_SHAPE = (257, 298, 2)  # STFT features
-FACE_EMBEDDING_SHAPE = (75, 512)  # 75 frames, 512-D embeddings
+# FACE_EMBEDDING_SHAPE = (75, 512)  # 75 frames, 512-D embeddings
+FACE_EMBEDDING_SHAPE = (75, 1792)  # 75 frames, 1792-D embeddings *Newer approach*
+
 EXPECTED_DTYPE = torch.float32
 
 
@@ -37,7 +40,7 @@ def init_models() -> FaceEmbedder:
 
 def process_for_training(
         clip_data: ClipData,
-        face_embedder: FaceEmbedder,
+        face_manager: FaceManager,
         noise_mixer: NoiseMixer,
         output_dir: Path
 ) -> int:
@@ -46,7 +49,7 @@ def process_for_training(
 
     Args:
         clip_data: Video metadata and path
-        face_embedder: Face detection/embedding model
+        face_manager: Face detection/embedding model
         noise_mixer: Audio noise augmentation
         output_dir: Where to save processed chunks
 
@@ -71,7 +74,7 @@ def process_for_training(
     try:
         video_chunks : List[torch.Tensor] = process_video_for_training(
                 mp4_path= clip_data.video_path_obj,
-                face_embedder=face_embedder,
+                face_manager=face_manager,
                 face_hint_pos=(clip_data.clip_metadata.get("x", 0.5), clip_data.clip_metadata.get("y", 0.5)))
 
     except Exception as e:
@@ -82,6 +85,8 @@ def process_for_training(
     if not _validate_chunks(audio_chunks, video_chunks):
         raise ValueError(f"Chunk validation failed for {clip_data.unique_clip_id}")
 
+    print(f"faced embs output chunks are: {video_chunks[0].shape}, dtype: {video_chunks[0].dtype}, max: {video_chunks[0].max()}, min: {video_chunks[0].min()}")
+
     # Packaging embeddings for saving
     samples = [Sample(face=v, mix=a.mixed, clean=a.clean) for v, a in zip(video_chunks, audio_chunks)]
     return save_processed_clip(samples, clip_data.unique_clip_id, output_dir)
@@ -90,19 +95,10 @@ def process_for_training(
 
 def process_for_inference(
         mp4_path: Path,
-        face_embedder: FaceEmbedder,
+        face_manager: FaceManager,
         user_hint: [Tuple[float, float]] = (0.5, 0.5)  # Default hint. center is enough if only 1 face
 ) -> List[Tuple[int, torch.Tensor, torch.Tensor]]:
-    """
-    Process a video clip for inference.
 
-    Args:
-        clip_data: Video metadata and path
-        face_embedder: Face detection/embedding model
-
-    Returns:
-        List of (chunk_idx, face_embedding, audio_embedding) tuples
-    """
 
     # Check video exists
     if not mp4_path.exists():
@@ -110,7 +106,7 @@ def process_for_inference(
 
     # Process pipelines
     audio_embeddings = process_audio_for_inference(mp4_path)
-    face_embeddings = process_video_for_inference(mp4_path, face_embedder, user_hint)
+    face_embeddings = process_video_for_inference(mp4_path, face_manager, user_hint)
 
     # Validate alignment
     if len(audio_embeddings) != len(face_embeddings):
@@ -140,22 +136,27 @@ def _validate_chunks(
     """
     # Check we have chunks
     if not audio_chunks or not video_chunks:
+        print(f"No chunks to validate: audio={len(audio_chunks)}, video={len(video_chunks)}")
         return False
 
     # Check counts match
     if len(audio_chunks) != len(video_chunks):
+        print(f"Chunk count mismatch: audio={len(audio_chunks)}, video={len(video_chunks)}")
         return False
 
     # Check shapes
     for audio_chunk, video_chunk in zip(audio_chunks, video_chunks):
         # Check audio shapes
         if audio_chunk.clean.shape != AUDIO_CHUNK_SHAPE:
+            print(f"Invalid audio clean shape: {audio_chunk.clean.shape}")
             return False
         if audio_chunk.mixed.shape != AUDIO_CHUNK_SHAPE:
+            print(f"Invalid audio mixed shape: {audio_chunk.mixed.shape}")
             return False
 
         # Check video shape
         if video_chunk.shape != FACE_EMBEDDING_SHAPE:
+            print(f"Invalid video embedding shape: {video_chunk.shape}")
             return False
 
         # Check dtypes
@@ -172,7 +173,7 @@ def _validate_chunks(
 # ─────────────────────── Convenience Wrappers ─────────────────────────
 
 def process_single_clip(
-        face_embedder: FaceEmbedder,
+        face_manager: FaceManager,
         clip_data: ClipData,
         noise_mixer: NoiseMixer,
         output_dir: Path
@@ -184,7 +185,7 @@ def process_single_clip(
     try:
         return process_for_training(
                 clip_data=clip_data,
-                face_embedder=face_embedder,
+                face_manager=face_manager,
                 noise_mixer=noise_mixer,
                 output_dir=output_dir
         )
@@ -194,7 +195,7 @@ def process_single_clip(
 
 
 def pre_process_for_inference(
-        face_embedder: FaceEmbedder,
+        face_manager: FaceManager,
         clip_data: ClipData
 ) -> List[Tuple[int, torch.Tensor, torch.Tensor]]:
     """
@@ -204,7 +205,7 @@ def pre_process_for_inference(
     try:
         return process_for_inference(
                 mp4_path=clip_data.video_path_obj,
-                face_embedder=face_embedder,
+                face_manager=face_manager,
                 user_hint=(clip_data.clip_metadata.get("x", 0.5), clip_data.clip_metadata.get("y", 0.5))
         )
     except Exception as e:

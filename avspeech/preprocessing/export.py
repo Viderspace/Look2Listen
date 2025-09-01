@@ -58,6 +58,7 @@ def save_processed_clip(embeddings : List[Sample],
             save_single_sample(folder_path, sample, overwrite)
             save_count += 1
 
+
         except Exception as e:
             logging.error(f"❌ Error creating chunk {idx}: {e}")
             continue

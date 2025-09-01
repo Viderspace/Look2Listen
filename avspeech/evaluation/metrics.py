@@ -22,9 +22,7 @@ def sdr(estimated: torch.Tensor, target: torch.Tensor) -> float:
 
 def sdr_improvement(estimated: torch.Tensor, target: torch.Tensor, mixture: torch.Tensor) -> float:
     """SDR Improvement (SDRi) - main metric from paper"""
-    sdr_est = sdr(estimated, target)
-    sdr_mix = sdr(mixture, target)
-    return sdr_est - sdr_mix
+    return  sdr(estimated, target) - sdr(mixture, target)
 
 
 def si_sdr(estimated: torch.Tensor, target: torch.Tensor) -> float:

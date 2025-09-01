@@ -17,7 +17,7 @@ from tqdm import tqdm
 
 from avspeech.preprocessing.clips_loader import DataLoader
 from avspeech.preprocessing.pipeline import init_models, process_single_clip
-from avspeech.utils.face_embedder import FaceEmbedder
+from avspeech.utils.FaceManager import FaceManager
 from avspeech.utils.noise_mixer import NoiseMixer
 from avspeech.utils.structs import SampleT
 
@@ -61,7 +61,7 @@ def parse_arguments():
         "--augmentation",
         type=SampleT,
         choices=list(SampleT),
-        default=SampleT.S1_NOISE,
+        default=SampleT.S2_CLEAN,
         help="Type of noise augmentation",
     )
 
@@ -104,7 +104,7 @@ def sample_already_processed(clip_id: str, output_dir: Path) -> bool:
 def process_dataset(
     data_loader: DataLoader,
     output_dir: Path,
-    face_embedder: FaceEmbedder,
+    face_manager: FaceManager,
     noise_mixer: NoiseMixer,
 ) -> Dict[str, int]:
     """Process all clips in the dataset."""
@@ -112,7 +112,7 @@ def process_dataset(
     stats = {"processed": 0, "failed": 0, "chunks": 0, "start_time": time.time()}
 
     progress_bar = tqdm(data_loader, desc="Processing")
-    chunks_limit = 2300
+    chunks_limit = 100_000_000  # Safety limit to avoid excessive processing
 
     for clip_data in progress_bar:
         try:
@@ -122,7 +122,7 @@ def process_dataset(
                 continue
 
             chunks_created = process_single_clip(
-                face_embedder=face_embedder,
+                face_manager=face_manager,
                 clip_data=clip_data,
                 noise_mixer=noise_mixer,
                 output_dir=output_dir,
@@ -201,7 +201,7 @@ def main():
         metadata_path=args.metadata,
         max_clips=args.max_clips,
     )
-    face_embedder = init_models()
+    face_manager = FaceManager()
 
     new_speech_root = Path(
         "/Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/scripts/data/speech_library"
@@ -218,7 +218,7 @@ def main():
 
     # Process dataset
     print(f"Processing {len(data_loader)} clips...")
-    stats = process_dataset(data_loader, args.output_dir, face_embedder, noise_mixer)
+    stats = process_dataset(data_loader, args.output_dir, face_manager, noise_mixer)
 
     # Print summary
     print_summary(stats)
@@ -234,3 +234,7 @@ if __name__ == "__main__":
 
 # /Users/jonatanvider/Downloads/AVSpeech/clips/xau-xba
 # /Users/jonatanvider/Desktop/Look2Listen_Stuff/Main_Dataset/S2N/S2N_45K
+
+
+# demi clips folder - /Users/jonatanvider/Downloads/AVSpeech/clips/used/first_60k_aa2ai/xab
+# demi output folder - /Users/jonatanvider/Desktop/Look2Listen_Stuff/tests_clips_junk

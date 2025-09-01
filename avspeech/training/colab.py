@@ -221,49 +221,50 @@ def get_preconfigured_datasets() -> List[DatasetDownloadDescriptor]:
     """
 
     # Training datasets
-    s1_noise_descriptor = DatasetDownloadDescriptor(
-        sample_type=SampleT.S1_NOISE,
-        gcs_files=[
-            "gs://av_speech_60k_dataset/avspeech_1s_noise_subset10k.tar.gz",
-            "gs://av_speech_60k_dataset/avspeech_1s_noise_subset5k_additional.tar.gz",
-        ],
-        is_validation=False,
-    )
-    s2c_tars = [f"gs://avspeech_s2c/S2C_45K_chunk_{i:03d}.tar.gz" for i in range(1, 33)]
+    # s1_noise_descriptor = DatasetDownloadDescriptor(
+    #     sample_type=SampleT.S1_NOISE,
+    #     gcs_files=[
+    #         "gs://av_speech_60k_dataset/avspeech_1s_noise_subset10k.tar.gz",
+    #         "gs://av_speech_60k_dataset/avspeech_1s_noise_subset5k_additional.tar.gz",
+    #     ],
+    #     is_validation=False,
+    # )
+    s2c_tars = (
+            [f"gs://s2c_v2/xay-xbb_2sc_chunk_{i:03d}.tar.gz" for i in range(1, 7)] + ["gs://s2c_v2/xax_2sc_chunk_001.tar.gz"])
 
     s2_clean_descriptor = DatasetDownloadDescriptor(
         sample_type=SampleT.S2_CLEAN, gcs_files=s2c_tars, is_validation=False
     )
 
-    s2n_tars = [f"gs://avspeech_s2n/S2N_45K_chunk_{i:03d}.tar.gz" for i in range(1, 33)]
-    s2_noise_descriptor = DatasetDownloadDescriptor(
-        sample_type=SampleT.S2_NOISE,
-        gcs_files=s2n_tars,
-        is_validation=False,
-    )
+    # s2n_tars = [f"gs://avspeech_s2n/S2N_45K_chunk_{i:03d}.tar.gz" for i in range(1, 33)]
+    # s2_noise_descriptor = DatasetDownloadDescriptor(
+    #     sample_type=SampleT.S2_NOISE,
+    #     gcs_files=s2n_tars,
+    #     is_validation=False,
+    # )
 
     # Validation datasets
-    s1_noise_validation_descriptor = DatasetDownloadDescriptor(
-        sample_type=SampleT.S1_NOISE,
-        gcs_files=["gs://av_speech_validation/1s_noise.tar.gz"],
-        is_validation=True,
-    )
+    # s1_noise_validation_descriptor = DatasetDownloadDescriptor(
+    #     sample_type=SampleT.S1_NOISE,
+    #     gcs_files=["gs://av_speech_validation/1s_noise.tar.gz"],
+    #     is_validation=True,
+    # )
     s2_clean_validation_descriptor = DatasetDownloadDescriptor(
         sample_type=SampleT.S2_CLEAN,
-        gcs_files=["gs://av_speech_validation/2s_clean.tar.gz"],
+        gcs_files=["gs://av_speech_validation/xax_2sc_chunk_002.tar.gz"],
         is_validation=True,
     )
-    s2_noise_validation_descriptor = DatasetDownloadDescriptor(
-        sample_type=SampleT.S2_NOISE,
-        gcs_files=["gs://av_speech_validation/2s_noise.tar.gz"],
-        is_validation=True,
-    )
+    # s2_noise_validation_descriptor = DatasetDownloadDescriptor(
+    #     sample_type=SampleT.S2_NOISE,
+    #     gcs_files=["gs://av_speech_validation/2s_noise.tar.gz"],
+    #     is_validation=True,
+    # )
 
     return [
-        s1_noise_descriptor,
+        # s1_noise_descriptor,
         s2_clean_descriptor,
-        s2_noise_descriptor,
-        s1_noise_validation_descriptor,
+        # s2_noise_descriptor,
+        # s1_noise_validation_descriptor,
         s2_clean_validation_descriptor,
-        s2_noise_validation_descriptor,
+        # s2_noise_validation_descriptor,
     ]

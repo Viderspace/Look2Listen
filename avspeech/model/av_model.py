@@ -34,7 +34,7 @@ def init_weights(m):
 
 class AudioVisualModel(nn.Module):
 
-    def __init__(self, audio_channels=2, video_embed_dim=512):
+    def __init__(self):
         """
         Single speaker enhancement model (no speaker separation)
 
@@ -46,7 +46,7 @@ class AudioVisualModel(nn.Module):
 
         # Audio and Visual streams
         self.audio_cnn = AudioDilatedCNN()
-        self.visual_cnn = VisualDilatedCNN(input_dim=video_embed_dim)
+        self.visual_cnn = VisualDilatedCNN()
 
         # Calculate fusion dimensions
         audio_feature_dim = 8 * 257  # 8 channels × 257 freq bins = 2056
@@ -64,18 +64,13 @@ class AudioVisualModel(nn.Module):
 
         # BiLSTM output will be 400*2 = 800 dimensions  # Sum-merged to 400-D in forward()
 
+
         # Three FC layers + output (added third hidden; removed FC BN; keep linear output)
         self.fc1 = nn.Linear(400, 600)  # input dim changed due to sum-merge
         self.fc2 = nn.Linear(600, 600)
-        # self.fc3 = nn.Linear(600, 600)  # added hidden layer to match original 3×600
-        self.fc3 = nn.Linear(600, 257 * 2)  # 257 freq × 2 (real/imag) – output layer (linear)
+        self.fc3 = nn.Linear(600, 600)  # added hidden layer to match original 3×600
+        self.fc4 = nn.Linear(600, 257 * 2)  # 257 freq × 2 (real/imag) – output layer (linear)
 
-        self.bn1 = nn.BatchNorm1d(298)
-        self.bn2 = nn.BatchNorm1d(298)
-        self.bn3 = nn.BatchNorm1d(298)
-        self.drop1 = nn.Dropout(0.1)
-        self.drop2 = nn.Dropout(0.1)
-        self.drop3 = nn.Dropout(0.1)
 
         # Mark final head for Xavier init
         self.fc3._is_output_head = True
@@ -113,7 +108,7 @@ class AudioVisualModel(nn.Module):
 
         # BiLSTM
         lstm_out, _ = self.blstm(fused_features)  # [batch, 298, 800]
-        F.leaky_relu(lstm_out, negative_slope=LEAKY_SLOPE)
+        lstm_out = F.leaky_relu(lstm_out, negative_slope=LEAKY_SLOPE)
         # Sum-merge directions → [batch, 298, 400]
         summed_directions = lstm_out[:, :, :400] + lstm_out[:, :, 400:]
         x = summed_directions  # [batch, 298, 400]
@@ -121,16 +116,16 @@ class AudioVisualModel(nn.Module):
         # ---- FC blocks with Leaky → BN(time) → Dropout ----
         # BN1d expects (N, C, L). Here we use C = time = 298, L = feature.
         x = F.leaky_relu(self.fc1(x), negative_slope=LEAKY_SLOPE)  # [B, 298, 600]
-        x = self.drop1(x)
+        # x = self.drop1(x)
 
         x = F.leaky_relu(self.fc2(x), negative_slope=LEAKY_SLOPE)  # [B, 298, 600]
-        x = self.drop2(x)
+        # x = self.drop2(x)
 
-        # x = F.leaky_relu(self.fc3(x), negative_slope=LEAKY_SLOPE)  # [B, 298, 600]
-        x = self.drop3(x)
+        x = F.leaky_relu(self.fc3(x), negative_slope=LEAKY_SLOPE)  # [B, 298, 600]
+        # x = self.drop3(x)
 
         # Output head
-        x = self.fc3(x)  # [B, 298, 257 * 2]
+        x = self.fc4(x)  # [B, 298, 257 * 2]
         x = torch.sigmoid(x) # Sigmoid to [0, 1] range for mask
 
         # Reshape back to [batch, 257, 298, 2]

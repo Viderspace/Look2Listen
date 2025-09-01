@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 from avspeech.training.dataloader import MixedDataLoader
 from avspeech.training.loss import ComplexCompressedLoss
 from avspeech.utils.structs import SampleT
-import avspeech.evaluation.metrics as metrics
+import avspeech.evaluation.metrics_bss as metrics_bss
 from avspeech.training.training_phase import TrainingPhase
 
 
@@ -258,7 +258,7 @@ def evaluate_model_SDRI(estimated_batch : torch.Tensor, gt_batch : torch.Tensor,
         estimated_wav = stft_to_audio(estimated_sample)
         clean_wav = stft_to_audio(clean_sample)
         mixture_wav = stft_to_audio(mixture_sample)
-        sum_sdri += metrics.sdr_improvement(estimated_wav, clean_wav, mixture_wav)
+        sum_sdri += metrics_bss.sdri_bss(estimated_wav, clean_wav, mixture_wav)
 
 
 
@@ -282,35 +282,25 @@ def log_sdri_on_test_batch(test_batches: Dict[str, torch.Tensor], model: torch.n
 def log_grad_and_masks(model: torch.nn.Module, masks: torch.Tensor, step: Optional[int]=None) -> str:
     """Return a short string with grad L2 norm and mask stats."""
     with torch.no_grad():
+        p05, p95 = torch.quantile(masks.detach().flatten(), masks.new_tensor([0.05, 0.95]))
+        logits_std = torch.logit(masks.clamp(1e-6, 1-1e-6)).std()
+# include: f"mask[p05={p05:.3f}, p95={p95:.3f}, spread={(p95-p05):.3f}] | logits_std={logits_std:.3f}"
         g2 = 0.0
         for p in model.parameters():
             if p.grad is not None:
                 g2 += p.grad.pow(2).sum().item()
         grad_l2 = g2 ** 0.5
         m = masks.detach()
-        s = f"grad_l2={grad_l2:.4g} | mask[min={m.min().item():.3f}, mean={m.mean().item():.3f}, max={m.max().item():.3f}]"
+        s = f"grad_l2={grad_l2:.4g} | mask[min={m.min().item():.3f}, p05={p05:.3f}, mean={m.mean().item():.3f}, p95={p95:.3f}, max={m.max().item():.3f} | spread={(p95-p05):.3f}] | logits_std={logits_std:.3f}"
         return f"step={step} | {s}" if step is not None else s
 
 
 def grab_constant_batch(device: torch.device, data_loader: MixedDataLoader) -> Dict[str, torch.Tensor]:
-    s2n_batch = next(iter(data_loader.get_val_loader(SampleT.S2_NOISE)))
     s2c_batch = next(iter(data_loader.get_val_loader(SampleT.S2_CLEAN)))
 
-    s2c_mixture = s2c_batch["mixture"].to(device)
-    s2n_mixture = s2n_batch["mixture"].to(device)
-    mixture = torch.cat([s2c_mixture, s2n_mixture], dim=0)
-    print(f"mixture shape: {mixture.shape}")
-
-    s2c_clean = s2c_batch["clean"].to(device)
-    s2n_clean = s2n_batch["clean"].to(device)
-    clean = torch.cat([s2c_clean, s2n_clean], dim=0)
-
-
-    s2c_face = s2c_batch["face"].to(device)
-    s2n_face = s2n_batch["face"].to(device)
-    face = torch.cat([s2c_face, s2n_face], dim=0)
-
-
+    mixture = s2c_batch["mixture"].to(device)
+    clean = s2c_batch["clean"].to(device)
+    face = s2c_batch["face"].to(device)
 
     return {"mixture": mixture, "face": face, "clean": clean}
 

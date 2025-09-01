@@ -108,57 +108,6 @@ class FaceEmbedder:
 
         return face_crops
 
-    def detect_and_crop_faces(
-        self, video_frames: List[np.ndarray], hint_x: float, hint_y: float
-    ) -> Tuple[List[np.ndarray], List[Optional[object]]]:
-        """
-        Detect faces in video frames and crop them to 160x160.
-        Returns crops and raw detection objects (for optional debug image creation).
-
-        Args:
-            video_frames: List of video frames (H, W, 3) in RGB format
-            hint_x: Face hint x coordinate (0-1)
-            hint_y: Face hint y coordinate (0-1)
-
-        Returns:
-            Tuple of (face_crops, detections)
-            - face_crops: List with valid crops (160x160x3) - dummy crops for missing faces
-            - detections: List with MediaPipe detection objects or None for missing faces
-        """
-        face_crops = []
-        detections = []
-        successful_detections = 0
-
-        for frame_idx, frame in enumerate(video_frames):
-            # MediaPipe expects RGB
-            rgb_frame = (
-                cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                if frame.shape[-1] == 3
-                else frame
-            )
-
-            # Detect faces
-            results = self.detect_frame(rgb_frame)
-
-            face_crop = None
-            best_detection = None
-
-            if results:
-                # Find best face using hint
-                best_detection = self.find_nearest_face(results, hint_x, hint_y)
-                if best_detection is not None:
-                    face_crop = self._crop_face_with_padding(frame, best_detection)
-                    successful_detections += 1
-
-            # Use dummy crop if no face found (ORIGINAL WORKING LOGIC)
-            if face_crop is None:
-                self.undetected_frame_count += 1
-                face_crop = np.zeros((FACE_IMG_SZ, FACE_IMG_SZ, 3), dtype=np.uint8)
-
-            face_crops.append(face_crop)  # Always valid crop (real or dummy)
-            detections.append(best_detection)  # None or MediaPipe detection object
-
-        return face_crops, detections
 
     def detect_frame(self, frame: np.ndarray) -> List[FaceDetection]:
         raw_results = self.detector.process(frame).detections
@@ -266,26 +215,26 @@ class FaceEmbedder:
         # Crop and resize
         cropped = frame[y1_pad:y2_pad, x1_pad:x2_pad]
         return cv2.resize(cropped, (FACE_IMG_SZ, FACE_IMG_SZ))
-
-    def _crop_face(self, frame: np.ndarray, detection) -> np.ndarray:
-        """Crop face from frame using detection bounding box."""
-        frame_height, frame_width = frame.shape[:2]
-        bbox = detection.location_data.relative_bounding_box
-
-        # Convert relative coordinates to absolute
-        x1 = max(0, int(bbox.xmin * frame_width))
-        y1 = max(0, int(bbox.ymin * frame_height))
-        x2 = min(frame_width, int((bbox.xmin + bbox.width) * frame_width))
-        y2 = min(frame_height, int((bbox.ymin + bbox.height) * frame_height))
-
-        # Crop and resize to target size
-        cropped = frame[y1:y2, x1:x2]
-        if cropped.size > 0:
-            resized = cv2.resize(cropped, (FACE_IMG_SZ, FACE_IMG_SZ))
-            return resized
-        else:
-            # Return dummy if crop failed
-            return np.zeros((FACE_IMG_SZ, FACE_IMG_SZ, 3), dtype=np.uint8)
+    #
+    # def _crop_face(self, frame: np.ndarray, detection) -> np.ndarray:
+    #     """Crop face from frame using detection bounding box."""
+    #     frame_height, frame_width = frame.shape[:2]
+    #     bbox = detection.location_data.relative_bounding_box
+    #
+    #     # Convert relative coordinates to absolute
+    #     x1 = max(0, int(bbox.xmin * frame_width))
+    #     y1 = max(0, int(bbox.ymin * frame_height))
+    #     x2 = min(frame_width, int((bbox.xmin + bbox.width) * frame_width))
+    #     y2 = min(frame_height, int((bbox.ymin + bbox.height) * frame_height))
+    #
+    #     # Crop and resize to target size
+    #     cropped = frame[y1:y2, x1:x2]
+    #     if cropped.size > 0:
+    #         resized = cv2.resize(cropped, (FACE_IMG_SZ, FACE_IMG_SZ))
+    #         return resized
+    #     else:
+    #         # Return dummy if crop failed
+    #         return np.zeros((FACE_IMG_SZ, FACE_IMG_SZ, 3), dtype=np.uint8)
 
     def draw_detection(
         self,

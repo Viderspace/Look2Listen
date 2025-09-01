@@ -21,7 +21,7 @@ class NoiseMixer:
     def __init__(
         self,
         audio_sources: Dict[NoiseType, ShuffledWavIterator],
-        set_type: SampleT = SampleT.S1_NOISE,
+        set_type: SampleT = SampleT.S2_CLEAN,
     ):
         self.set_type = set_type
         self.sample_rate = SAMPLE_RATE
@@ -33,7 +33,7 @@ class NoiseMixer:
         noise_root: Optional[Path] = None,
         speech_root: Optional[Path] = None,
         set_type: SampleT = SampleT.S2_CLEAN,
-        seed: int = 42,
+        seed: int|None = None,
     ) -> "NoiseMixer":
         """
         Convenience constructor:

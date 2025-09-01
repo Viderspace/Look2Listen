@@ -4,10 +4,12 @@ from typing import Tuple
 from avspeech import DEVICE
 from avspeech.training.training_phase import PhaseName
 from avspeech.utils.structs import SampleT
-
 path_to_samples = "/Users/jonatanvider/Desktop/Look2Listen_Stuff/overfitting_samples"
-path_to_demi_eval = "/Users/jonatanvider/Desktop/Look2Listen_Stuff/overfitting_samples_4"
+path_to_demi_eval =  "/Users/jonatanvider/Desktop/Look2Listen_Stuff/overfitting_samples_4"
 
+ # "/Users/jonatanvider/Desktop/Look2Listen_Stuff/overfitting_samples"
+
+# path_to_demi_eval = "/Users/jonatanvider/Desktop/Look2Listen_Stuff/overfitting_samples_4"
 
 def setup():
     # Cell 6: Create phase configuration
@@ -16,7 +18,7 @@ def setup():
     phase = TrainingPhase(
         name=PhaseName.MAIN,
         probabilities={
-            SampleT.S2_NOISE: 1.00
+            SampleT.S2_CLEAN: 1.00
         },
         num_epochs=100,
         learning_rate=3e-4,
@@ -38,9 +40,8 @@ def setup():
     # Cell 7: Create dataloader
     from avspeech.training.dataloader import MixedDataLoader
 
-    paths = {SampleT.S2_NOISE: Path(path_to_samples)}
-    val_paths = {SampleT.S2_NOISE: Path(path_to_demi_eval),
-                 SampleT.S2_CLEAN: Path(path_to_demi_eval)}
+    paths = {SampleT.S2_CLEAN: Path(path_to_samples)}
+    val_paths = {SampleT.S2_CLEAN: Path(path_to_demi_eval)}
     data_loader = MixedDataLoader(
             train_paths=paths,
             val_paths=val_paths,
@@ -77,7 +78,7 @@ def setup():
             device=DEVICE,
             log_dir= Path("/Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/avspeech/training/overfit_artifacts"),
             checkpoint_dir=Path("/Users/jonatanvider/Documents/LookingToListenProject/av-speech-enhancement/avspeech/training/overfit_artifacts"),
-            console_logs_update_interval=10
+            console_logs_update_interval=16
 
     )
     print(f"✓ Trainer initialized")

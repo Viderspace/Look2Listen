@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import torch
 
-from avspeech.utils.face_embedder import FaceEmbedder
+from avspeech.utils.FaceManager import FaceManager
 
 # Constants
 TARGET_FPS = 25
@@ -255,7 +255,7 @@ Main pre processing calls
 
 def process_video_for_inference(
     mp4_path: Path,
-    face_embedder: FaceEmbedder,
+    face_manager: FaceManager,
     user_hint: [Tuple[float, float]] = (
         0.5,
         0.5,
@@ -267,8 +267,8 @@ def process_video_for_inference(
         raise ValueError(f"No video frames extracted for {mp4_path.name}")
 
     # Core processing: always needed
-    face_crops = face_embedder.crop_faces(video_frames, user_hint[0], user_hint[1])
-    face_embeddings_chunks = face_embedder.compute_embeddings(face_crops)
+    face_crops = face_manager.crop_frames(video_frames, user_hint[0], user_hint[1])
+    face_embeddings_chunks = face_manager.compute_embeddings(face_crops, pad_tail=True)
     print(
         f"  Extracted {len(face_embeddings_chunks)} face embeddings from {len(video_frames)} frames"
     )
@@ -291,13 +291,13 @@ def process_frames_for_inference(
     if not frames:
         raise ValueError("No frames provided for inference")
 
-    face_embedder = FaceEmbedder()  # Initialize your face embedder here
-    face_crops = face_embedder.crop_faces(frames, hint_pos[0], hint_pos[1])
-    return face_embedder.compute_embeddings(face_crops)
+    face_manager = FaceManager()  # Initialize your face embedder here
+    face_crops = face_manager.crop_frames(frames, hint_pos[0], hint_pos[1])
+    return face_manager.compute_embeddings(face_crops, pad_tail=True)
 
 
 def process_video_for_training(
-    mp4_path: Path, face_embedder: FaceEmbedder, face_hint_pos: Tuple[float, float]
+    mp4_path: Path, face_manager: FaceManager, face_hint_pos: Tuple[float, float]
 ) -> List[torch.Tensor]:
     """
     Complete video/face pipeline with optimized debug processing.
@@ -312,5 +312,5 @@ def process_video_for_training(
         raise ValueError(f"No video frames extracted for {mp4_path.name}")
 
     # Core processing: always needed
-    face_crops = face_embedder.crop_faces(video_frames, hint_x, hint_y)
-    return face_embedder.compute_embeddings(face_crops)
+    face_crops = face_manager.crop_frames(video_frames, hint_x, hint_y)
+    return face_manager.compute_embeddings(face_crops, drop_tail=True, max_3_chunks=True)
